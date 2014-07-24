@@ -1,7 +1,7 @@
 PorygonDexV1
 ============
 
-PorygonDex with Drupal
+PorygonDex avec Drupal
 
 Installation PorygonDex :
 
