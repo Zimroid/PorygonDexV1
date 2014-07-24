@@ -1,0 +1,83 @@
+User Registration Password 7.x-1.x-dev 2013-01-18
+---------------------------------------------
+
+  Migrated functionality from user_registrationpass_extra:
+- New: Password reset form flood control + privacy.
+- New: Settings for flood control via flood_control module.
+- New: Resend password confirmation mail from admin/users.
+- New: Added support for the rpt module.
+
+- Bug: Fixed wrong tokens in e-mail activation template
+  http://drupal.org/node/1832002
+- Bug: Fixed missing token on configuration page
+  http://drupal.org/node/1831922
+- Bug: Fixed Duplicate email using the verification email option (3rd option)
+  By bago - https://drupal.org/node/1773430
+
+- Task: Added tests. (admin config page test still needs work)
+- Task: Codingstandards++ (almost done).
+- Task: In-code documentation++ (still needs some work).
+
+- CODE CHANGES: Changed logic a bit, be sure to review the
+  changes if you develop on top of our module.
+ * Added hook_user_presave() and set the 'account->login'
+   to REQUEST_TIME on registration.
+ * Added account->access and replaced account->login in the
+   db queries with account->access. This makes the password
+   reset just as secure and random as core again.
+
+   These 2 changes enable us to use the core activation action
+   next to ours and also makes sure blocking a new fresh user
+   still works if the user has been created by an admin.
+
+ * All static variables 'values' have changed.
+ * Moved everything in user_registrationpassword_form_user_register_submit()
+   function into the if() statement.
+ * Created a new function: user_registrationpassword_set_message()
+   to drupal_set_message() and redirect.
+ * Did a lot of work to fix possible privacy issues.
+
+   You need to run update.php.
+
+TODO:
+- Finish tests.
+- Fix TODO markers.
+
+
+User Registration Password 7.x-1.3 2012-09-12
+---------------------------------------------
+- Feature request: Translatable Confirmation E-Mail
+  By kle - http://drupal.org/node/1321998
+- New: The correct configuration options are set from the 1.3 release
+  and higher during install. No need to configure anything from now on.
+- New: The default 'Account activation' e-mail template will be
+  overridden during installation, now it makes a lot more sense.
+- Renamed the user_registrationpassword variable to
+  'user_registrationpassword_registration'
+  so we can actually remove it correctly via the uninstaller.
+- Minor edit to the e-mail template.
+- Small change in the logic, we used to check for the role of a user
+  (if admin perms) before we called the submit handler, we now only check
+  if the uid < 1. This fixes a minor possible issue. This module should
+  only work if an anonymous user tries to register.
+- Added an update function to update the variable names that changed.
+- Added CHANGELOG.txt so people can check at all times what changed,
+  even if d.o. is down. (for maintenance for example)
+- Updated README.txt to reflect changes and remove wrong / unclear
+  documentation.
+
+User Registration Password 1.2 2012-04-12
+-----------------------------------------
+- Bug by scor : Error with user status value
+  http://drupal.org/node/1513016
+- New: hook_mailkeys() is now supported, please test this.
+  Thanks ominds for the patch!
+
+User Registration Password 1.1 2012-02-04
+-----------------------------------------
+- Bug by jide : Verification email was sent
+  even when option was disabled.
+
+User Registration Password 1.0 2012-02-04
+-----------------------------------------
+- First commit.

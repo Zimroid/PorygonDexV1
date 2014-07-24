@@ -1,0 +1,159 @@
+<?php
+
+function get_telechargements_page()
+{
+  $content = '  <link rel="stylesheet" href="jquery/css/flick/jquery-ui-1.10.3.custom.css" /> ';
+  $content = $content . '  <script src="jquery/js/jquery-1.9.1.js"></script> ';
+  $content = $content . '  <script src="jquery/js/jquery-ui-1.10.3.custom.js"></script> ';
+  $content = $content . '  <link rel="stylesheet" href="sites/all/modules/custom/Telechargements/telechargements.css" /> ';
+  $content = $content . '<script>';
+  $content = $content . '  $(function() { $( ".check" ).button(); });';
+  $content = $content . '</script>';
+
+  $content = $content . '<div id="buttonsDL">';
+  $content = $content . '<a href="pokedexSqlDownload"><button class="check">Pokedex SQL</button></a>';
+  $content = $content . '<a href="dl/ArtworkPGL.zip"><button class="check">Artwork PGL</button></a>';
+  $content = $content . '<a href="dl/Pokemap.zip"><button class="check">Pokemap</button></a>';
+  $content = $content . '</div>';
+
+  $content = $content .  '<style type="text/css">#map-canvas { width: 100%; height: 600px; }</style>';
+  $content = $content . '<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>';
+  $content = $content . '<script type="text/javascript">';
+  $content = $content . 'function initialize(){';
+  $content = $content . '  var pkmTypeOptions = {';
+  $content = $content . '    getTileUrl: function(coord, zoom) {';
+  $content = $content . '        var normalizedCoord = getNormalizedCoord(coord, zoom);';
+  $content = $content . '        if (!normalizedCoord){';
+  $content = $content . '          return null;';
+  $content = $content . '        }';
+  $content = $content . '        var bound = Math.pow(2, zoom);';
+  $content = $content . '        if (normalizedCoord.y > 0 && normalizedCoord.y < 6 && normalizedCoord.x > 0 && normalizedCoord.x < 5){';
+  $content = $content . '          return "style/0." + normalizedCoord.y + "." + normalizedCoord.x + ".png";';
+  $content = $content . '        }';
+  $content = $content . '      else{ ';
+  $content = $content . '          return "style/0.1.1.png";';
+  $content = $content . '        }';
+  $content = $content . '    },';
+  $content = $content . '    tileSize: new google.maps.Size(256, 256),';
+  $content = $content . '    maxZoom: 9,';
+  $content = $content . '    minZoom: 0,';
+  $content = $content . '    radius: 1738000,';
+  $content = $content . '    name: "Pokemon"';
+  $content = $content . '  };';
+  $content = $content . '    var PokemonMapType = new google.maps.ImageMapType(pkmTypeOptions);';
+  $content = $content . '    var myLatlng = new google.maps.LatLng(-10, -50);';
+  $content = $content . '    var mapOptions = {';
+  $content = $content . '    center: myLatlng,';
+  $content = $content . '    zoom: 3,';
+  $content = $content . '    streetViewControl: false,';
+  $content = $content . '    zoomControl: false,';
+  $content = $content . '    scrollwheel : false,';
+  $content = $content . '    disableDoubleClickZoom: true,';
+  $content = $content . '    mapTypeControlOptions: {';
+  $content = $content . '        mapTypeIds: ["Pokemon"]';
+  $content = $content . '    }';
+  $content = $content . '    };';
+  $content = $content . '  var pkmmap = new google.maps.Map(document.getElementById("map-canvas"),';
+  $content = $content . '  mapOptions);';
+  $content = $content . '  pkmmap.mapTypes.set("Pokemon", PokemonMapType);';
+  $content = $content . '  pkmmap.setMapTypeId("Pokemon");';
+  $content = $content . '  function getNormalizedCoord(coord, zoom){';
+  $content = $content . '    var y = coord.y;';
+  $content = $content . '    var x = coord.x;';
+  $content = $content . '    var tileRange = 1 << zoom;';
+  $content = $content . '    if (y < 0 || y >= tileRange){';
+  $content = $content . '      return null;';
+  $content = $content . '    }';
+  $content = $content . '    if (x < 0 || x >= tileRange){';
+  $content = $content . '      x = (x % tileRange + tileRange) % tileRange;';
+  $content = $content . '    }';
+  $content = $content . '    return {';
+  $content = $content . '      x: x,';
+  $content = $content . '      y: y';
+  $content = $content . '    };';
+  $content = $content . '    }';
+
+  $content = $content . 'var pok_icon = new google.maps.MarkerImage("style/pokeball.png");';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-9, -39.9)) , title: "Bour Palette"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-3, -39.9)) , title: "Jadielle"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(1, -39.9)) , title: "Argenta"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(2, -26)) , title: "Azuria"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-2, -20.2)) , title: "Lavanville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-2, -31)) , title: "Celadopole"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-3, -26)) , title: "Safrania"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-10, -28.7)) , title: "Parmanie"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-13, -39.9)) , title: "Cramois`île"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-7.5, -48.3)) , title: "Bourg Geon"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-7.5, -57)) , title: "Ville Griotte"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-0.2, -59.6)) , title: "Mauville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-11.5, -63.8)) , title: "Ecorcia"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-5, -66.6)) , title: "Doublonville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(2.4, -63.8)) , title: "Rosalia"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-0.2, -70.8)) , title: "Oliville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-7.3, -75)) , title: "Irisia"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(2.4, -55.4)) , title: "Acajou"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(2.4, -51)) , title: "Ebenelle"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-17.2, -121.5)) , title: "Bourg-en-Vol"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-17.3, -118.7)) , title: "Rosyères"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-13, -119)) , title: "Clémentiville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-13, -114)) , title: "Mérouville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-14.5, -125.7)) , title: "Village Myokara"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-22.5, -120)) , title: "Poivressel"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-6, -26)) , title: "Carmin-sur-mer"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-23, -114.5)) , title: "Lavandia"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-17.3, -114.5)) , title: "Vergazon"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-16, -106)) , title: "Autéquia"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-18.7, -110.2)) , title: "Vermilava"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-27.5, -106)) , title: "Cimetronelle"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-35, -110.3)) , title: "Nénucrique"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-42, -113)) , title: "Algatia"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-38.2, -115.8)) , title: "Atalanopolis"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-33.6, -120)) , title: "Pacifiville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(-44.5, -118)) , title: "Éternara"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(68.6, -15)) , title: "Bonaugure"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(69.3, -12)) , title: "Littorella"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(73.9, 1.8)) , title: "Célestia"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(72.7, 12.8)) , title: "Voilaroc"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(70, -12)) , title: "Féli-Cité"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(72.2, 6.5)) , title: "Bonville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(69.5, 8.5)) , title: "Verchamps"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(70.5, -6)) , title: "Charbourg"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(71.5, 2.3)) , title: "Unionpolis"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(73.8, -5.8)) , title: "Vestigion"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(71, -18)) , title: "Joliberges"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(77.3, -3)) , title: "Frimapic"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(70.5, 20.5)) , title: "Rivamar"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(72, -12)) , title: "Floraville"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(73.5, 19.8)) , title: "Ligue"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(74.7, 18)) , title: "Aide de détente"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(75, 9.9)) , title: "Aire de combat"})).setMap(pkmmap);';
+  $content = $content . '(new google.maps.Marker({icon: pok_icon, position: (new google.maps.LatLng(76, 11)) , title: "Aide de survie"})).setMap(pkmmap);';
+
+  $content = $content . '}';
+  $content = $content . '</script>';
+  $content = $content . '<div id="map-canvas" style="width:100%; margin:auto;"> </div>';
+  $content = $content . '<script type="text/javascript"> initialize();</script>';
+
+  return $content;
+
+}
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+ function telechargements_menu() {
+
+  $items = array();
+
+  $items['Telechargements'] = array(
+    'title' => "Téléchargements",
+    'page callback' => 'get_telechargements_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+ 

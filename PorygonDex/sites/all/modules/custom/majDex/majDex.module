@@ -1,0 +1,222 @@
+<?php
+
+function get_majDex()
+{
+  global $user;
+
+  // Check to see if $user has the administrator role.
+  if (in_array('administrator', array_values($user->roles)))
+  {
+    // Do something.
+
+    $output = '<h1>ATTENTION!!!</h1>';
+    $output = $output . '<p>Ce petit bouton magique actualisera entièrement la table Pokedex.</p>';
+    $output = $output . '<p>Veillez faire attention à se que toutes les données présentes à l\'heure actuelle dans le Pokedex sont correctes. Cette opération peut prendre du temps...</p>';
+
+    $output = $output .  '<form action="' . $_SERVER['PHP_SELF'] . '/?q=majDexSql" method="POST">';
+    $output = $output .   '<input type="submit" value="GO!" name="GO"/>';
+    $output = $output .  '</form>';
+
+    if(isset($_POST['GO']))
+    {
+
+      db_query('DELETE FROM Pokedex');
+
+      $q = db_query('SELECT entity_id, field_nom_francais_value FROM field_data_field_nom_francais WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("INSERT INTO Pokedex SET Nom_francais = :nom, Nom_anglais = NULL, Nom_japonais = NULL, Numero_National = NULL, Numero_Johto = NULL, Numero_Hoenn = NULL, Numero_Sinnoh = NULL, Numero_Unys = NULL, Numero_Unys_NB2 = NULL, Numero_Kalos_Cotes = NULL, Numero_Kalos_Centre = NULL, Numero_Kalos_Monts = NULL, Taille = NULL, Poids = NULL, Espece = NULL, Type1 = NULL, Type2 = NULL, DescriptionX = NULL, DescriptionY = NULL, Pre_evo = NULL, entity_id = :id", array(':nom' => $data->field_nom_francais_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_nom_anglais_value FROM field_data_field_nom_anglais WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Nom_anglais = :nom WHERE entity_id = :id", array(':nom' => $data->field_nom_anglais_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_nom_japonais_value FROM field_data_field_nom_japonais WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Nom_japonais = :nom WHERE entity_id = :id", array(':nom' => $data->field_nom_japonais_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_national_value FROM field_data_field_numero_national WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_National = :n WHERE entity_id = :id", array(':n' => $data->field_numero_national_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_johto_value FROM field_data_field_numero_johto WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Johto = :n WHERE entity_id = :id", array(':n' => $data->field_numero_johto_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_hoenn_value FROM field_data_field_numero_hoenn WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Hoenn = :n WHERE entity_id = :id", array(':n' => $data->field_numero_hoenn_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_sinnoh_value FROM field_data_field_numero_sinnoh WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Sinnoh = :n WHERE entity_id = :id", array(':n' => $data->field_numero_sinnoh_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_unys_value FROM field_data_field_numero_unys WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Unys = :n WHERE entity_id = :id", array(':n' => $data->field_numero_unys_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_unys_nb2_value FROM field_data_field_numero_unys_nb2 WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Unys_NB2 = :n WHERE entity_id = :id", array(':n' => $data->field_numero_unys_nb2_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_kalos_cote_value FROM field_data_field_numero_kalos_cote WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Kalos_Cotes = :n WHERE entity_id = :id", array(':n' => $data->field_numero_kalos_cote_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_kalos_centre_value FROM field_data_field_numero_kalos_centre WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Kalos_Centre = :n WHERE entity_id = :id", array(':n' => $data->field_numero_kalos_centre_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_numero_kalos_mont_value FROM field_data_field_numero_kalos_mont WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Numero_Kalos_Monts = :n WHERE entity_id = :id", array(':n' => $data->field_numero_kalos_mont_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_taille_value FROM field_data_field_taille WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Taille = :t WHERE entity_id = :id", array(':t' => $data->field_taille_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_poids_value FROM field_data_field_poids WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Poids = :p WHERE entity_id = :id", array(':p' => $data->field_poids_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_espece_value FROM field_data_field_espece WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Espece = :e WHERE entity_id = :id", array(':e' => $data->field_espece_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_type1_value FROM field_data_field_type1 WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Type1 = :t WHERE entity_id = :id", array(':t' => $data->field_type1_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_type2_value FROM field_data_field_type2 WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Type2 = :t WHERE entity_id = :id", array(':t' => $data->field_type2_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_description_value FROM field_data_field_description WHERE entity_id IN (SELECT nid FROM node WHERE status = 1) AND delta=0');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET DescriptionX = :d WHERE entity_id = :id", array(':d' => $data->field_description_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_description_value FROM field_data_field_description WHERE entity_id IN (SELECT nid FROM node WHERE status = 1) AND delta=1');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET DescriptionY = :d WHERE entity_id = :id", array(':d' => $data->field_description_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_pre_evo_value FROM field_data_field_pre_evo WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Pre_evo = :pe WHERE entity_id = :id", array(':pe' => $data->field_pre_evo_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_condition_d_evolution_value FROM field_data_field_condition_d_evolution WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Condition_d_evolution = :ce WHERE entity_id = :id", array(':ce' => $data->field_condition_d_evolution_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_pv_value FROM field_data_field_pv WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET PV = :pv WHERE entity_id = :id", array(':pv' => $data->field_pv_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_attaque_value FROM field_data_field_attaque WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Attaque = :atk WHERE entity_id = :id", array(':atk' => $data->field_attaque_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_defense_value FROM field_data_field_defense WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Defense = :def WHERE entity_id = :id", array(':def' => $data->field_defense_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_attaque_spe_value FROM field_data_field_attaque_spe WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Attaque_spe = :atks WHERE entity_id = :id", array(':atks' => $data->field_attaque_spe_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_defense_spe_value FROM field_data_field_defense_spe WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Defense_spe = :defs WHERE entity_id = :id", array(':defs' => $data->field_defense_spe_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_vitesse_value FROM field_data_field_vitesse WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Vitesse = :v WHERE entity_id = :id", array(':v' => $data->field_vitesse_value, ':id' => $data->entity_id));
+      }
+
+      $q = db_query('SELECT entity_id, field_talent_value FROM field_data_field_talent WHERE entity_id IN (SELECT nid FROM node WHERE status = 1)');
+      while ($data = $q->fetch(PDO::FETCH_OBJ))
+      {
+        $r = db_query("UPDATE Pokedex SET Talent = :t WHERE entity_id = :id", array(':t' => $data->field_talent_value, ':id' => $data->entity_id));
+      }
+    }
+
+    return $output;
+  }
+  else
+  {
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+  }
+
+}
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+ function majDex_menu() {
+
+  $items = array();
+
+  $items['majDexSql'] = array(
+    'title' => "Mise à jour de Pokedex.sql",
+    'page callback' => 'get_majDex',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+ 

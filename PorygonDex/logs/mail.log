@@ -1,0 +1,39 @@
+2014-04-14 01:07:52 u73257197 2vtzKJ-1Wz0bs0TMa-0138QB |< REMOTE=5.164.214.65 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-14 01:07:52 u73257197 2vtzKJ-1Wz0bs0TMa-0138QB <= S=bekipan@porygondex.com SZ=1361 D=0 SID=468920849
+2014-04-14 01:07:52 u73257197 2vtzKJ-1Wz0bs0TMa-0138QB => charles8gtyr@hotmail.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0M9cAV-1WgNnT0vcN-00Czm2 accepted by mreue005.kundenserver.de
+2014-04-16 05:43:45 u73257197 2voT0l-1X2bKz25ay-016N8J |< REMOTE=37.187.73.216 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-16 05:43:45 u73257197 2voT0l-1X2bKz25ay-016N8J <= S=bekipan@porygondex.com SZ=1258 D=0 SID=468920849
+2014-04-16 05:43:45 u73257197 2voT0l-1X2bKz25ay-016N8J => zim@porygondex.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0M7R91-1WvDcc2j0p-00xJbF accepted by mreue006.kundenserver.de
+2014-04-17 01:11:53 u73257197 2wWDrO-1WcUvg0S2j-006urr |< REMOTE=5.164.222.140 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-17 01:11:53 u73257197 2wWDrO-1WcUvg0S2j-006urr <= S=bekipan@porygondex.com SZ=1366 D=0 SID=468920849
+2014-04-17 01:11:53 u73257197 2wWDrO-1WcUvg0S2j-006urr => robert4evh@hotmail.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0LZjJo-1XFQ731BAS-00lRWn accepted by mreue004.kundenserver.de
+2014-04-17 08:48:46 u73257197 2wX2wL-1WcIxI2nYg-0079Xt |< REMOTE=37.187.72.186 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-17 08:48:46 u73257197 2wX2wL-1WcIxI2nYg-0079Xt <= S=bekipan@porygondex.com SZ=1283 D=0 SID=468920849
+2014-04-17 08:48:47 u73257197 2wX2wL-1WcIxI2nYg-0079Xt => zim@porygondex.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0Mcixh-1WIjbL41tB-00I0MD accepted by mreue003.kundenserver.de
+2014-04-18 07:53:20 u73257197 2vh0cO-1WsFhv28S7-00zXDj |< REMOTE=46.147.115.148 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-18 07:53:20 u73257197 2vh0cO-1WsFhv28S7-00zXDj <= S=bekipan@porygondex.com SZ=1343 D=0 SID=468920849
+2014-04-18 07:53:20 u73257197 2vh0cO-1WsFhv28S7-00zXDj => hector2job@hotmail.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0Mf6Az-1WHXqL34Dx-00OYqt accepted by mreue001.kundenserver.de
+2014-04-18 08:50:53 u73257197 2wPzgp-1WNpDZ0BkW-00UrMz |< REMOTE=172.246.198.179 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-18 08:50:53 u73257197 2wPzgp-1WNpDZ0BkW-00UrMz <= S=bekipan@porygondex.com SZ=1285 D=0 SID=468920849
+2014-04-18 08:50:53 u73257197 2wPzgp-1WNpDZ0BkW-00UrMz => zim@porygondex.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0LxHg6-1WzcoB0u8g-016veD accepted by mreue007.kundenserver.de
+2014-04-18 08:50:55 u73257197 2wmUMD-1WkQIv3cqA-009Sac |< REMOTE=37.187.73.216 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-18 08:50:55 u73257197 2wmUMD-1WkQIv3cqA-009Sac <= S=bekipan@porygondex.com SZ=1283 D=0 SID=468920849
+2014-04-18 08:50:56 u73257197 2wmUMD-1WkQIv3cqA-009Sac => zim@porygondex.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0MWfMN-1WQq1M3uRf-00Xvt9 accepted by mreue005.kundenserver.de
+2014-04-18 22:35:09 u73257197 2vojrM-1WzhSQ0DBT-017DBe |< REMOTE=94.198.236.25 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-18 22:35:09 u73257197 2vojrM-1WzhSQ0DBT-017DBe <= S=bekipan@porygondex.com SZ=1347 D=0 SID=468920849
+2014-04-18 22:35:09 u73257197 2vojrM-1WzhSQ0DBT-017DBe => lyudochka-glazyrina@mail.ru msmtp.kundenserver.de[172.19.35.7] 250 Message 0LtQnI-1X2i091YMG-010q7K accepted by mreue006.kundenserver.de
+2014-04-19 08:58:21 u73257197 2wC48r-1XMJEp0HE6-00m1GY |< REMOTE=37.187.73.216 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-19 08:58:21 u73257197 2wC48r-1XMJEp0HE6-00m1GY <= S=bekipan@porygondex.com SZ=1283 D=0 SID=468920849
+2014-04-19 08:58:21 u73257197 2wC48r-1XMJEp0HE6-00m1GY => zim@porygondex.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0LxYj9-1WzXjK17zX-017BPz accepted by mreue006.kundenserver.de
+2014-04-19 09:56:12 u73257197 2w0STv-1X7T9k2hb2-00etmz |< REMOTE=176.221.5.204 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-19 09:56:12 u73257197 2w0STv-1X7T9k2hb2-00etmz <= S=bekipan@porygondex.com SZ=1346 D=0 SID=468920849
+2014-04-19 09:56:12 u73257197 2w0STv-1X7T9k2hb2-00etmz => falelieva.lyubov@mail.ru msmtp.kundenserver.de[172.19.35.7] 250 Message 0LxryC-1WyhkO3rwi-015LjG accepted by mreue005.kundenserver.de
+2014-04-20 09:03:54 u73257197 2wlwOR-1WkXEY0EWe-008oS2 |< REMOTE=192.99.7.177 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-20 09:03:54 u73257197 2wlwOR-1WkXEY0EWe-008oS2 <= S=bekipan@porygondex.com SZ=1278 D=0 SID=468920849
+2014-04-20 09:03:54 u73257197 2wlwOR-1WkXEY0EWe-008oS2 => zim@porygondex.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0MROX9-1WVM850yIZ-00Uczp accepted by mreue001.kundenserver.de
+2014-04-20 09:04:06 u73257197 2w914Q-1XGHXX40mr-00nujz |< REMOTE=192.99.7.177 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-20 09:04:06 u73257197 2w914Q-1XGHXX40mr-00nujz <= S=bekipan@porygondex.com SZ=1278 D=0 SID=468920849
+2014-04-20 09:04:07 u73257197 2w914Q-1XGHXX40mr-00nujz => zim@porygondex.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0Lc2Qz-1XKhNq0fX3-00jcbk accepted by mreue007.kundenserver.de
+2014-04-20 13:49:12 u73257197 2viN8D-1WoPLW0boY-00vtKr |< REMOTE=95.79.11.108 SCRIPT=/index.php -- /usr/sbin/sendmail -t -i -fbekipan@porygondex.com
+2014-04-20 13:49:12 u73257197 2viN8D-1WoPLW0boY-00vtKr <= S=bekipan@porygondex.com SZ=1342 D=0 SID=468920849
+2014-04-20 13:49:12 u73257197 2viN8D-1WoPLW0boY-00vtKr => ernesto12wsew@hotmail.com msmtp.kundenserver.de[172.19.35.7] 250 Message 0MRecW-1WVHk01R04-00SdX5 accepted by mreue007.kundenserver.de

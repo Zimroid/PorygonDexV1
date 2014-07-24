@@ -1,0 +1,167 @@
+div.info
+{
+	float:right;
+	width:50%;
+}
+
+div.image
+{
+	float:left;
+	width:50%;
+}
+
+div.txtinfo
+{
+	margin-left:30%;
+}
+
+div.noms
+{
+	display: inline-table;
+}
+
+div.lblnoms
+{
+	float: left;
+	height: 3em;
+	margin-right: 0.5em;
+}
+
+.titre
+{
+	text-align: center;
+	margin-bottom: 2em;
+}
+
+.spaceBottom
+{
+	margin-bottom: 2em;
+}
+
+#fiche
+{
+	overflow: hidden;
+	padding-bottom: 1em;
+}
+
+#evolution
+{
+	padding-top: 2em;
+	border-top: 2px #CCCCCC dashed;
+}
+
+#description, #statistiques
+{
+	padding-top: 1em;
+	border-top: 2px #CCCCCC dashed;
+}
+
+.images
+{
+	max-width:100%;
+	display:block;
+	margin:auto;
+}
+
+.images.evo
+{
+	max-height: 10em;
+}
+
+.txtCenter
+{
+	text-align: center;
+}
+
+.imgEvol, #evo
+{
+	display: inline-block;
+}
+
+#graphStats, #lblStats
+{
+	width: 50%;
+	float: left;
+}
+
+#lblStats
+{
+	margin-top: 100px;
+}
+
+#tableStats
+{
+	width: 50%;
+	margin: auto;
+}
+
+#faiblesses tr td
+{
+	border: none;
+}
+
+#faiblesses
+{
+	border-collapse: separate;
+	margin-top: 1.5em;
+}
+
+.td0
+{
+	background-image: url("/sites/all/modules/custom/fichePkm/faiblaissesBackground/0.png");
+	background-repeat: repeat-x;
+}
+
+.td0_25
+{
+	background-image: url("/sites/all/modules/custom/fichePkm/faiblaissesBackground/0_25.png");
+	background-repeat: repeat-x;
+}
+
+.td0_5
+{
+	background-image: url("/sites/all/modules/custom/fichePkm/faiblaissesBackground/0_5.png");
+	background-repeat: repeat-x;
+}
+
+.td1
+{
+	background-image: url("/sites/all/modules/custom/fichePkm/faiblaissesBackground/1.png");
+	background-repeat: repeat-x;
+}
+
+.td2
+{
+	background-image: url("/sites/all/modules/custom/fichePkm/faiblaissesBackground/2.png");
+	background-repeat: repeat-x;
+}
+
+.td4
+{
+	background-image: url("/sites/all/modules/custom/fichePkm/faiblaissesBackground/4.png");
+	background-repeat: repeat-x;
+}
+
+#effetsAttaques
+{
+	border-top: 2px #CCCCCC dashed;
+	padding-bottom: 1em;
+	padding-top: 1em;
+}
+
+#talents
+{
+	border-top: 2px #CCCCCC dashed;
+	padding-top: 1em;
+}
+
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) {
+
+	div.txtinfo
+	{
+		margin-left:0%;
+	}
+
+}

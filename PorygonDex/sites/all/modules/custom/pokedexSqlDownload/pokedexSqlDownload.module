@@ -1,0 +1,1601 @@
+<?php
+
+function get_list_pokemonSqlDownload()
+{
+
+/*--------------------Retour Ajax de la liste--------------------*/
+if(isset($_POST['go']))
+{
+  getSqlFile();
+  exit;
+}
+
+/*--------------------jQueryUI + CSS--------------------*/
+$content = '  <link rel="stylesheet" href="jquery/css/flick/jquery-ui-1.10.3.custom.css" /> ';
+$content = $content . '  <script src="jquery/js/jquery-1.9.1.js"></script> ';
+$content = $content . '  <script src="jquery/js/jquery-ui-1.10.3.custom.js"></script> ';
+$content = $content . '  <link rel="stylesheet" href="sites/all/modules/custom/pokedexSqlDownload/pokedexSqlDownload.css" /> ';
+$content = $content . '  <link rel="stylesheet" href="tooltipster/tooltipster.css" /> ';
+$content = $content . '  <script src="tooltipster/jquery.tooltipster.js"></script> ';
+
+$content = $content . ' <script>';
+$content = $content . '  $(function() { $( ".check" ).button(); });';
+$content = $content . '  $(function() {';
+$content = $content . '      $( "#tabs" ).tabs();';
+$content = $content . '    });';
+$content = $content . ' </script>';
+
+
+/*--------------------Tableau de bord de recherche--------------------*/
+$content = $content . '<form action="' . $_SERVER['PHP_SELF'] . '/?q=pokedexSqlDownload" method="POST">';
+$content = $content . '<div id="tabs">';
+$content = $content . '  <ul id="listTabs">';
+$content = $content . '    <li class="tooltip" title="Seuls les Pokémon des générations sélectionnées<br>apparaitront dans le fichier généré."><a href="#genbtn">Generations</a></li>';
+$content = $content . '    <li class="tooltip" title="Seuls les Pokémon dont les statistiques sont contenues<br>entre les valeurs choisies apparaitront dans le fichier généré."><a href="#stats">Stats</a></li>';
+$content = $content . '    <li class="tooltip" title="Seuls les Pokémon qui comportent les types<br>sélectionnés apparaitront dans le fichier généré."><a href="#typebtn">Type Requis</a></li>';
+$content = $content . '    <li class="tooltip" title="Aucun Pokémon possédant l’un des types<br>sélectionnés n’apparaitra dans le fichier généré."><a href="#nottypebtn">Type Interdit</a></li>';
+$content = $content . '    <li class="tooltip" title="Seuls les Pokémon possédant les caractéristiques<br>sélectionnées apparaitront dans le fichier généré."><a href="#plusbtn">Plus</a></li>';
+$content = $content . '  </ul>';
+
+/*Checkboxes des générations*/
+$content = $content . '<div id="genbtn">';
+$content = $content . '<input type="checkbox" class="check gen" id="g1" name="g1"/><label for="g1">G1</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g2" name="g2"/><label for="g2">G2</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g3" name="g3"/><label for="g3">G3</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g4" name="g4"/><label for="g4">G4</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g5" name="g5"/><label for="g5">G5</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g6" name="g6"/><label for="g6">G6</label>';
+$content = $content . '</div>';
+/*L'affichage des valeurs précise des stats*/
+$content = $content . '<div id="stats">';
+$content = $content . '<div id="statsbox">';
+$content = $content . '<div class="inputStat"><b>Pv :</b>';
+$content = $content . '<input type="text" class="inputstats" id="pvmin" name="pvmin" value="1"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="pvmax" name="pvmax" value="255"/>';
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Atk :</b>';
+$content = $content . '<input type="text" class="inputstats" id="atkmin" name="atkmin" value="2"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="atkmax" name="atkmax" value="165"/>';
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Def :</b>';
+$content = $content . '<input type="text" class="inputstats" id="defmin" name="defmin" value="5"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="defmax" name="defmax" value="230"/>';
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>AtkSpe :</b>';
+$content = $content . '<input type="text" class="inputstats" id="atkspemin" name="atkspemin" value="10"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="atkspemax" name="atkspemax" value="154"/>';
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>DefSpe :</b>';
+$content = $content . '<input type="text" class="inputstats" id="defspemin" name="defspemin" value="20"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="defspemax" name="defspemax" value="230"/>';
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Vit :</b>';
+$content = $content . '<input type="text" class="inputstats" id="vitmin" name="vitmin" value="5"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="vitmax" name="vitmax" value="160"/>';
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Taille :</b>';
+$content = $content . '<input type="text" class="inputstats" id="taillemin" name="taillemin" value="0.1"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="taillemax" name="taillemax" value="14.5"/>';
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Poids :</b>';
+$content = $content . '<input type="text" class="inputstats" id="poidsmin" name="poidsmin" value="0.1"/>';
+$content = $content . ' - ';
+$content = $content . '<input type="text" class="inputstats" id="poidsmax" name="poidsmax" value="950"/>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+$content = $content . '<div id="initSearchStats">';
+$content = $content . '<input type="submit" id="initStats" class="check" value="Reinitialiser"/><br> ';
+$content = $content . '</div>';
+
+$content = $content . '</div>';
+
+/*Les checkboxes des types*/
+$content = $content . '<div id="typebtn">';
+$content = $content . '<div id="typebtnbox">';
+$content = $content . '<input type="checkbox" class="check" id="normal" name="normal"/><label for="normal">Normal</label>';
+$content = $content . '<input type="checkbox" class="check" id="feu" name="feu"/><label for="feu">Feu</label>';
+$content = $content . '<input type="checkbox" class="check" id="eau" name="eau"/><label for="eau">Eau</label>';
+$content = $content . '<input type="checkbox" class="check" id="plante" name="plante"/><label for="plante">Plante</label>';
+$content = $content . '<input type="checkbox" class="check" id="electrique" name="electrique"/><label for="electrique">Electrique</label>';
+$content = $content . '<input type="checkbox" class="check" id="glace" name="glace"/><label for="glace">Glace</label>';
+$content = $content . '<input type="checkbox" class="check" id="combat" name="combat"/><label for="combat">Combat</label>';
+$content = $content . '<input type="checkbox" class="check" id="poison" name="poison"/><label for="poison">Poison</label>';
+$content = $content . '<input type="checkbox" class="check" id="sol" name="sol"/><label for="sol">Sol</label>';
+$content = $content . '<input type="checkbox" class="check" id="vol" name="vol"/><label for="vol">Vol</label>';
+$content = $content . '<input type="checkbox" class="check" id="psy" name="psy"/><label for="psy">Psy</label>';
+$content = $content . '<input type="checkbox" class="check" id="insecte" name="insecte"/><label for="insecte">Insecte</label>';
+$content = $content . '<input type="checkbox" class="check" id="roche" name="roche"/><label for="roche">Roche</label>';
+$content = $content . '<input type="checkbox" class="check" id="spectre" name="spectre"/><label for="spectre">Spectre</label>';
+$content = $content . '<input type="checkbox" class="check" id="dragon" name="dragon"/><label for="dragon">Dragon</label>';
+$content = $content . '<input type="checkbox" class="check" id="tenebres" name="tenebres"/><label for="tenebres">Tenebres</label>';
+$content = $content . '<input type="checkbox" class="check" id="acier" name="acier"/><label for="acier">Acier</label>';
+$content = $content . '<input type="checkbox" class="check" id="fee" name="fee"/><label for="fee">Fee</label>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+
+/*Les checkboxes d'interdiction de types*/
+$content = $content . '<div id="nottypebtn">';
+$content = $content . '<div id="nottypebtnbox">';
+$content = $content . '<input type="checkbox" class="check" id="notnormal" name="notnormal"/><label for="notnormal">Normal</label>';
+$content = $content . '<input type="checkbox" class="check" id="notfeu" name="notfeu"/><label for="notfeu">Feu</label>';
+$content = $content . '<input type="checkbox" class="check" id="noteau" name="noteau"/><label for="noteau">Eau</label>';
+$content = $content . '<input type="checkbox" class="check" id="notplante" name="notplante"/><label for="notplante">Plante</label>';
+$content = $content . '<input type="checkbox" class="check" id="notelectrique" name="notelectrique"/><label for="notelectrique">Electrique</label>';
+$content = $content . '<input type="checkbox" class="check" id="notglace" name="notglace"/><label for="notglace">Glace</label>';
+$content = $content . '<input type="checkbox" class="check" id="notcombat" name="notcombat"/><label for="notcombat">Combat</label>';
+$content = $content . '<input type="checkbox" class="check" id="notpoison" name="notpoison"/><label for="notpoison">Poison</label>';
+$content = $content . '<input type="checkbox" class="check" id="notsol" name="notsol"/><label for="notsol">Sol</label>';
+$content = $content . '<input type="checkbox" class="check" id="notvol" name="notvol"/><label for="notvol">Vol</label>';
+$content = $content . '<input type="checkbox" class="check" id="notpsy" name="notpsy"/><label for="notpsy">Psy</label>';
+$content = $content . '<input type="checkbox" class="check" id="notinsecte" name="notinsecte"/><label for="notinsecte">Insecte</label>';
+$content = $content . '<input type="checkbox" class="check" id="notroche" name="notroche"/><label for="notroche">Roche</label>';
+$content = $content . '<input type="checkbox" class="check" id="notspectre" name="notspectre"/><label for="notspectre">Spectre</label>';
+$content = $content . '<input type="checkbox" class="check" id="notdragon" name="notdragon"/><label for="notdragon">Dragon</label>';
+$content = $content . '<input type="checkbox" class="check" id="nottenebres" name="nottenebres"/><label for="nottenebres">Tenebres</label>';
+$content = $content . '<input type="checkbox" class="check" id="notacier" name="notacier"/><label for="notacier">Acier</label>';
+$content = $content . '<input type="checkbox" class="check" id="notfee" name="notfee"/><label for="notfee">Fee</label>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+/*Les truc en plus de la recherche*/
+$content = $content . '<div id="plusbtn">';
+$content = $content . '<div id="plusbtnbox">';
+$content = $content . '<input type="checkbox" class="check" id="double" name="double"/><label for="double">Double Type</label>';
+$content = $content . '<input type="checkbox" class="check" id="mono" name="mono"/><label for="mono">Mono Type</label>';
+$content = $content . '<input type="checkbox" class="check" id="1Stade" name="1Stade"/><label for="1Stade">1er Stade</label>';
+$content = $content . '<input type="checkbox" class="check" id="fStade" name="fStade"/><label for="fStade">Stade Final</label>';
+$content = $content . '<input type="checkbox" class="check" id="legend" name="legend"/><label for="legend">Légendaire</label>';
+$content = $content . '<input type="checkbox" class="check" id="notlegend" name="notlegend"/><label for="notlegend">Non Légendaire</label>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+
+
+$content = $content . '</div>';
+
+/*----------Choix et renommage des champs de la table----------*/
+$content = $content . '<br>';
+
+$content = $content . '<input type="submit" name="go" class="check recherche" value="Telecharger" id="go"/> ';
+$content = $content . '<br>';
+
+$content = $content . '<div id="champs1">';
+$content = $content . '<div class="labelCustomTable">Nom de la table : </div><input type="text" class="check textInput" name="NomTable" placeholder="Pokedex"/><br><br>';
+
+
+$content = $content . '<div class="labelCustomTable">Champ Numéro National : </div><input type="text" class="check textInput" name="Numero_National" placeholder="Numero_National"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Johto : </div><input type="text" class="check textInput" name="Numero_Johto" placeholder="Numero_Johto"/><input type="checkbox" name="checkNumJohto" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Hoenn : </div><input type="text" class="check textInput" name="Numero_Hoenn" placeholder="Numero_Hoenn"/><input type="checkbox" name="checkNumHoenn" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Sinnoh : </div><input type="text" class="check textInput" name="Numero_Sinnoh" placeholder="Numero_Sinnoh"/><input type="checkbox" name="checkNumSinnoh" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Unys : </div><input type="text" class="check textInput" name="Numero_Unys" placeholder="Numero_Unys"/><input type="checkbox" name="checkNumUnys" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Unys 2 : </div><input type="text" class="check textInput" name="Numero_Unys_NB2" placeholder="Numero_Unys_NB2"/><input type="checkbox" name="checkNumUnys2" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Kalos Cotes : </div><input type="text" class="check textInput" name="Numero_Kalos_Cotes" placeholder="Numero_Kalos_Cotes"/><input type="checkbox" name="checkNumKalos_Cotes" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Kalos Centre : </div><input type="text" class="check textInput" name="Numero_Kalos_Centre" placeholder="Numero_Kalos_Centre"/><input type="checkbox" name="checkNumKalos_Centre" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Numéro Kalos Monts : </div><input type="text" class="check textInput" name="Numero_Kalos_Monts" placeholder="Numero_Kalos_Monts"/><input type="checkbox" name="checkNumKalos_Monts" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Nom français : </div><input type="text" class="check textInput" name="Nom_francais" placeholder="Nom_francais"/><input type="checkbox" name="checkNomFr" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Nom anglais : </div><input type="text" class="check textInput" name="Nom_anglais" placeholder="Nom_anglais"/><input type="checkbox" name="checkNomEn" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Nom japonais : </div><input type="text" class="check textInput" name="Nom_japonais" placeholder="Nom_japonais"/><input type="checkbox" name="checkNomJp" checked="checked"/><br><br>';
+
+$content = $content . '<div class="labelCustomTable">Champ Type1 : </div><input type="text" class="check textInput" name="Type1" placeholder="Type1"/><input type="checkbox" name="checkType" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Type2 : </div><input type="text" class="check textInput" name="Type2" placeholder="Type2"/><br><br>';
+$content = $content . '</div>';
+
+$content = $content . '<div id="champs2">';
+$content = $content . '<div class="labelCustomTable">Champ Poids : </div><input type="text" class="check textInput" name="Poids" placeholder="Poids"/><input type="checkbox" name="checkPoids" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Taille : </div><input type="text" class="check textInput" name="Taille" placeholder="Taille"/><input type="checkbox" name="checkTaille" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Espèce : </div><input type="text" class="check textInput" name="Espece" placeholder="Espece"/><input type="checkbox" name="checkEspece" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Talent : </div><input type="text" class="check textInput" name="Talent" placeholder="Talent"/><input type="checkbox" name="checkTalent" checked="checked"/><br><br>';
+
+$content = $content . '<div class="labelCustomTable">Champ PV : </div><input type="text" class="check textInput" name="PV" placeholder="PV"/><input type="checkbox" name="checkStats" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Attaque : </div><input type="text" class="check textInput" name="Attaque" placeholder="Attaque"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Attaque spécial : </div><input type="text" class="check textInput" name="Attaque_spe" placeholder="Attaque_spe"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Défense : </div><input type="text" class="check textInput" name="Defense" placeholder="Defense"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Défense spécial : </div><input type="text" class="check textInput" name="Defense_spe" placeholder="Defense_spe"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Vitesse : </div><input type="text" class="check textInput" name="Vitesse" placeholder="Vitesse"/><br><br>';
+
+$content = $content . '<div class="labelCustomTable">Champ Numéro de Pré-évolution : </div><input type="text" class="check textInput" name="Pre_evo" placeholder="Pre_evo"/><input type="checkbox" name="checkPreEvo" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Condition d\'évolution : </div><input type="text" class="check textInput" name="Condition_d_evolution" placeholder="Condition_d_evolution"/><input type="checkbox" name="checkCondition" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Description X : </div><input type="text" class="check textInput" name="DescriptionX" placeholder="DescriptionX"/><input type="checkbox" name="checkDescriptionX" checked="checked"/><br>';
+$content = $content . '<div class="labelCustomTable">Champ Description Y : </div><input type="text" class="check textInput" name="DescriptionY" placeholder="DescriptionY"/><input type="checkbox" name="checkDescriptionY" checked="checked"/><br>';
+$content = $content . '</div>';
+
+$content = $content . '</form>';
+
+/*----------Appliquer le jQueryUI----------*/
+$content = $content . '<script> ';
+$content = $content . '$(document).ready(function() {';
+$content = $content . '   $(".tooltip").tooltipster();';
+$content = $content . '});';
+$content = $content . '</script> ';
+
+$content = $content . '<script> ';
+$content = $content . '$("#initStats").click(function() {';
+$content = $content . ' $("#pvmin").val(1);';
+$content = $content . ' $("#pvmax").val(255);';
+$content = $content . ' $("#atkmin").val(2);';
+$content = $content . ' $("#atkmax").val(165);';
+$content = $content . ' $("#defmin").val(5);';
+$content = $content . ' $("#defmax").val(230);';
+$content = $content . ' $("#atkspemin").val(10);';
+$content = $content . ' $("#atkspemax").val(154);';
+$content = $content . ' $("#defspemin").val(20);';
+$content = $content . ' $("#defspemax").val(230);';
+$content = $content . ' $("#vitmin").val(5);';
+$content = $content . ' $("#vitmax").val(160);';
+$content = $content . ' $("#taillemin").val(0.1);';
+$content = $content . ' $("#taillemax").val(14.5);';
+$content = $content . ' $("#poidsmin").val(0.1);';
+$content = $content . ' $("#poidsmax").val(950);';
+$content = $content . '});';
+$content = $content . '</script> ';
+
+
+
+return $content;
+}
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+function PokedexSqlDownload_menu()
+{
+
+  $items = array();
+
+  $items['PokedexSqlDownload'] = array(
+    'title' => "Pokedex Sql Custom Download",
+    'page callback' => 'get_list_pokemonSqlDownload',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+function getSqlFile()
+{
+  /*----------Requète SQL modifier pour filtrer la liste avec les parametres GET------------*/
+  header("Content-type: text/plain");
+  header("Content-Disposition: attachment; filename=pokedex.sql");
+
+  $posts = array();
+
+  setlocale(LC_ALL, 'fr_CA.utf8');
+
+  if(!isset($_POST["NomTable"]) OR $_POST["NomTable"] === ""){
+    $_POST["NomTable"] = "Pokedex";
+  }
+  else{
+    $_POST["NomTable"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["NomTable"]));
+  }
+  if(!isset($_POST["Numero_National"]) OR $_POST["Numero_National"] === ""){
+    $_POST["Numero_National"] = "Numero_National";
+  }
+  else{
+    $_POST["Numero_National"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_National"]));
+  }
+  $posts[] = $_POST["Numero_National"];
+  if(!isset($_POST["Numero_Johto"]) OR $_POST["Numero_Johto"] === ""){
+    $_POST["Numero_Johto"] = "Numero_Johto";
+  }
+  else{
+    $_POST["Numero_Johto"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Johto"]));
+  }
+  if(!in_array($_POST["Numero_Johto"], $posts)){
+    $posts[] = $_POST["Numero_Johto"];
+  }
+  else{
+    $_POST["checkNumJohto"] = NULL;
+  }
+
+  if(!isset($_POST["Numero_Hoenn"]) OR $_POST["Numero_Hoenn"] === ""){
+    $_POST["Numero_Hoenn"] = "Numero_Hoenn";
+  }
+  else{
+    $_POST["Numero_Hoenn"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Hoenn"]));
+  }
+  if(!in_array($_POST["Numero_Hoenn"], $posts)){
+    $posts[] = $_POST["Numero_Hoenn"];
+  }
+  else{
+    $_POST["checkNumHoenn"] = NULL;
+  }
+
+  if(!isset($_POST["Numero_Sinnoh"]) OR $_POST["Numero_Sinnoh"] === ""){
+    $_POST["Numero_Sinnoh"] = "Numero_Sinnoh";
+  }
+  else{
+    $_POST["Numero_Sinnoh"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Sinnoh"]));
+  }
+  if(!in_array($_POST["Numero_Sinnoh"], $posts)){
+    $posts[] = $_POST["Numero_Sinnoh"];
+  }
+  else{
+    $_POST["checkNumSinnoh"] = NULL;
+  }
+  if(!isset($_POST["Numero_Unys"]) OR $_POST["Numero_Unys"] === ""){
+    $_POST["Numero_Unys"] = "Numero_Unys";
+  }
+  else{
+    $_POST["Numero_Unys"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Unys"]));
+  }
+  if(!in_array($_POST["Numero_Unys"], $posts)){
+    $posts[] = $_POST["Numero_Unys"];
+  }
+  else{
+    $_POST["checkNumUnys"] = NULL;
+  }
+  if(!isset($_POST["Numero_Unys_NB2"]) OR $_POST["Numero_Unys_NB2"] === ""){
+    $_POST["Numero_Unys_NB2"] = "Numero_Unys_NB2";
+  }
+  else{
+    $_POST["Numero_Unys_NB2"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Unys_NB2"]));
+  }
+  if(!in_array($_POST["Numero_Unys_NB2"], $posts)){
+    $posts[] = $_POST["Numero_Unys_NB2"];
+  }
+  else{
+    $_POST["checkNumUnys2"] = NULL;
+  }
+  if(!isset($_POST["Numero_Kalos_Cotes"]) OR $_POST["Numero_Kalos_Cotes"] === ""){
+    $_POST["Numero_Kalos_Cotes"] = "Numero_Kalos_Cotes";
+  }
+  else{
+    $_POST["Numero_Kalos_Cotes"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Kalos_Cotes"]));
+  }
+  if(!in_array($_POST["Numero_Kalos_Cotes"], $posts)){
+    $posts[] = $_POST["Numero_Kalos_Cotes"];
+  }
+  else{
+    $_POST["checkNumKalos_Cotes"] = NULL;
+  }
+  if(!isset($_POST["Numero_Kalos_Centre"]) OR $_POST["Numero_Kalos_Centre"] === ""){
+    $_POST["Numero_Kalos_Centre"] = "Numero_Kalos_Centre";
+  }
+  else{
+    $_POST["Numero_Kalos_Centre"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Kalos_Centre"]));
+  }
+  if(!in_array($_POST["Numero_Kalos_Centre"], $posts)){
+    $posts[] = $_POST["Numero_Kalos_Centre"];
+  }
+  else{
+    $_POST["checkNumKalos_Centre"] = NULL;
+  }
+  if(!isset($_POST["Numero_Kalos_Monts"]) OR $_POST["Numero_Kalos_Monts"] === ""){
+    $_POST["Numero_Kalos_Monts"] = "Numero_Kalos_Monts";
+  }
+  else{
+    $_POST["Numero_Kalos_Monts"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Numero_Kalos_Monts"]));
+  }
+  if(!in_array($_POST["Numero_Kalos_Monts"], $posts)){
+    $posts[] = $_POST["Numero_Kalos_Monts"];
+  }
+  else{
+    $_POST["checkNumKalos_Monts"] = NULL;
+  }
+  if(!isset($_POST["Nom_francais"]) OR $_POST["Nom_francais"] === ""){
+    $_POST["Nom_francais"] = "Nom_francais";
+  }
+  else{
+    $_POST["Nom_francais"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Nom_francais"]));
+  }if(!in_array($_POST["Nom_francais"], $posts)){
+    $posts[] = $_POST["Nom_francais"];
+  }
+  else{
+    $_POST["checkNomFr"] = NULL;
+  }
+  if(!isset($_POST["Nom_anglais"]) OR $_POST["Nom_anglais"] === ""){
+    $_POST["Nom_anglais"] = "Nom_anglais";
+  }
+  else{
+    $_POST["Nom_anglais"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Nom_anglais"]));
+  }if(!in_array($_POST["Nom_anglais"], $posts)){
+    $posts[] = $_POST["Nom_anglais"];
+  }
+  else{
+    $_POST["checkNomEn"] = NULL;
+  }
+  if(!isset($_POST["Nom_japonais"]) OR $_POST["Nom_japonais"] === ""){
+    $_POST["Nom_japonais"] = "Nom_japonais";
+  }
+  else{
+    $_POST["Nom_japonais"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Nom_japonais"]));
+  }
+  if(!in_array($_POST["Nom_japonais"], $posts)){
+    $posts[] = $_POST["Nom_japonais"];
+  }
+  else{
+    $_POST["checkNomJp"] = NULL;
+  }
+  if(!isset($_POST["Type1"]) OR $_POST["Type1"] === ""){
+    $_POST["Type1"] = "Type1";
+  }
+  else{
+    $_POST["Type1"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Type1"]));
+  }
+  if(!in_array($_POST["Type1"], $posts)){
+    $posts[] = $_POST["Type1"];
+  }
+  else{
+    $_POST["checkType"] = NULL;
+  }
+  if(!isset($_POST["Type2"]) OR $_POST["Type2"] === ""){
+    $_POST["Type2"] = "Type2";
+  }
+  else{
+    $_POST["Type2"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Type2"]));
+  }
+  if(!in_array($_POST["Type2"], $posts)){
+    $posts[] = $_POST["Type2"];
+  }
+  else{
+    $_POST["checkType"] = NULL;
+  }
+  if(!isset($_POST["Poids"]) OR $_POST["Poids"] === ""){
+    $_POST["Poids"] = "Poids";
+  }
+  else{
+    $_POST["Poids"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Poids"]));
+  }
+  if(!in_array($_POST["Poids"], $posts)){
+    $posts[] = $_POST["Poids"];
+  }
+  else{
+    $_POST["checkPoids"] = NULL;
+  }
+  if(!isset($_POST["Taille"]) OR $_POST["Taille"] === ""){
+    $_POST["Taille"] = "Taille";
+  }
+  else{
+    $_POST["Taille"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Taille"]));
+  }
+  if(!in_array($_POST["Taille"], $posts)){
+    $posts[] = $_POST["Taille"];
+  }
+  else{
+    $_POST["checkTaille"] = NULL;
+  }
+  if(!isset($_POST["Espece"]) OR $_POST["Espece"] === ""){
+    $_POST["Espece"] = "Espece";
+  }
+  else{
+    $_POST["Espece"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Espece"]));
+  }
+  if(!in_array($_POST["Espece"], $posts)){
+    $posts[] = $_POST["Espece"];
+  }
+  else{
+    $_POST["checkEspece"] = NULL;
+  }
+  if(!isset($_POST["Talent"]) OR $_POST["Talent"] === ""){
+    $_POST["Talent"] = "Talent";
+  }
+  else{
+    $_POST["Talent"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Talent"]));
+  }
+  if(!in_array($_POST["Talent"], $posts)){
+    $posts[] = $_POST["Talent"];
+  }
+  else{
+    $_POST["checkTalent"] = NULL;
+  }
+  if(!isset($_POST["PV"]) OR $_POST["PV"] === ""){
+    $_POST["PV"] = "PV";
+  }
+  else{
+    $_POST["PV"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["PV"]));
+  }
+  if(!in_array($_POST["PV"], $posts)){
+    $posts[] = $_POST["PV"];
+  }
+  else{
+    $_POST["checkStats"] = NULL;
+  }
+  if(!isset($_POST["Attaque"]) OR $_POST["Attaque"] === ""){
+    $_POST["Attaque"] = "Attaque";
+  }
+  else{
+    $_POST["Attaque"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Attaque"]));
+  }
+  if(!in_array($_POST["Attaque"], $posts)){
+    $posts[] = $_POST["Attaque"];
+  }
+  else{
+    $_POST["checkStats"] = NULL;
+  }
+  if(!isset($_POST["Attaque_spe"]) OR $_POST["Attaque_spe"] === ""){
+    $_POST["Attaque_spe"] = "Attaque_spe";
+  }
+  else{
+    $_POST["Attaque_spe"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Attaque_spe"]));
+  }
+  if(!in_array($_POST["Attaque_spe"], $posts)){
+    $posts[] = $_POST["Attaque_spe"];
+  }
+  else{
+    $_POST["checkStats"] = NULL;
+  }
+  if(!isset($_POST["Defense"]) OR $_POST["Defense"] === ""){
+    $_POST["Defense"] = "Defense";
+  }
+  else{
+    $_POST["Defense"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Defense"]));
+  }
+  if(!in_array($_POST["Defense"], $posts)){
+    $posts[] = $_POST["Defense"];
+  }
+  else{
+    $_POST["checkStats"] = NULL;
+  }
+  if(!isset($_POST["Defense_spe"]) OR $_POST["Defense_spe"] === ""){
+    $_POST["Defense_spe"] = "Defense_spe";
+  }
+  else{
+    $_POST["Defense_spe"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Defense_spe"]));
+  }
+  if(!in_array($_POST["Defense_spe"], $posts)){
+    $posts[] = $_POST["Defense_spe"];
+  }
+  else{
+    $_POST["checkStats"] = NULL;
+  }
+  if(!isset($_POST["Vitesse"]) OR $_POST["Vitesse"] === ""){
+    $_POST["Vitesse"] = "Vitesse";
+  }
+  else{
+    $_POST["Vitesse"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Vitesse"]));
+  }
+  if(!in_array($_POST["Vitesse"], $posts)){
+    $posts[] = $_POST["Vitesse"];
+  }
+  else{
+    $_POST["checkStats"] = NULL;
+  }
+  if(!isset($_POST["Pre_evo"]) OR $_POST["Pre_evo"] === ""){
+    $_POST["Pre_evo"] = "Pre_evo";
+  }
+  else{
+    $_POST["Pre_evo"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Pre_evo"]));
+  }
+  if(!in_array($_POST["Pre_evo"], $posts)){
+    $posts[] = $_POST["Pre_evo"];
+  }
+  else{
+    $_POST["checkPreEvo"] = NULL;
+  }
+  if(!isset($_POST["Condition_d_evolution"]) OR $_POST["Condition_d_evolution"] === ""){
+    $_POST["Condition_d_evolution"] = "Condition_d_evolution";
+  }
+  else{
+    $_POST["Condition_d_evolution"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["Condition_d_evolution"]));
+  }
+  if(!in_array($_POST["Condition_d_evolution"], $posts)){
+    $posts[] = $_POST["Condition_d_evolution"];
+  }
+  else{
+    $_POST["checkCondition"] = NULL;
+  }
+  if(!isset($_POST["DescriptionX"]) OR $_POST["DescriptionX"] === ""){
+    $_POST["DescriptionX"] = "DescriptionX";
+  }
+  else{
+    $_POST["DescriptionX"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["DescriptionX"]));
+  }
+  if(!in_array($_POST["DescriptionX"], $posts)){
+    $posts[] = $_POST["DescriptionX"];
+  }
+  else{
+    $_POST["checkDescriptionX"] = NULL;
+  }
+  if(!isset($_POST["DescriptionY"]) OR $_POST["DescriptionY"] === ""){
+    $_POST["DescriptionY"] = "DescriptionY";
+  }
+  else{
+    $_POST["DescriptionY"] = preg_replace("/[^a-zA-Z0-9]/i","_", iconv('UTF-8', 'ASCII//TRANSLIT', $_POST["DescriptionY"]));
+  }
+  if(!in_array($_POST["DescriptionY"], $posts)){
+    $posts[] = $_POST["DescriptionY"];
+  }
+  else{
+    $_POST["checkDescriptionY"] = NULL;
+  }
+
+
+  // On récupère la liste des pokemon
+  //Construction de la requète
+  $sql = "SELECT * FROM Pokedex ";
+
+  //Les WHERE
+  $blockGenerations = "";
+  $blockStats = "";
+  $blockTypes = "";
+  $blockNotTypes = "";
+  $blockPlus = "";
+
+  $needBlockGenerations = false;
+  $needBlockStats = false;
+  $needBlockTypes = false;
+  $needBlockNotTypes = false;
+  $needBlockPlus = false;
+
+  /*----------BLOCK GENERATIONS----------*/
+  if(isset($_POST["g1"]))
+  {
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 1 AND 151)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_POST["g2"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 152 AND 251)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_POST["g3"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 252 AND 386)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_POST["g4"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 387 AND 473)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_POST["g5"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 474 AND 649)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_POST["g6"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National > 649)";
+    $needBlockGenerations = true;
+  }
+
+  /*----------BLOCK STATS----------*/
+
+  if(isset($_POST["pvmax"]) AND isset($_POST["pvmin"]))
+  {
+    if(is_numeric($_POST["pvmax"]) AND is_numeric($_POST["pvmin"]))
+    {
+      $blockStats = $blockStats . "(PV BETWEEN " . $_POST["pvmin"] . " AND " . $_POST["pvmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_POST["atkmax"]) AND isset($_POST["atkmin"]))
+  {
+    if(is_numeric($_POST["atkmax"]) AND is_numeric($_POST["atkmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Attaque BETWEEN " . $_POST["atkmin"] . " AND " . $_POST["atkmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_POST["defmax"]) AND isset($_POST["defmin"]))
+  {
+    if(is_numeric($_POST["defmax"]) AND is_numeric($_POST["defmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Defense BETWEEN " . $_POST["defmin"] . " AND " . $_POST["defmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_POST["atkspemax"]) AND isset($_POST["atkspemin"]))
+  {
+    if(is_numeric($_POST["atkspemax"]) AND is_numeric($_POST["atkspemin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Attaque_spe BETWEEN " . $_POST["atkspemin"] . " AND " . $_POST["atkspemax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_POST["defspemax"]) AND isset($_POST["defspemin"]))
+  {
+    if(is_numeric($_POST["defspemax"]) AND is_numeric($_POST["defspemin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Defense_spe BETWEEN " . $_POST["defspemin"] . " AND " . $_POST["defspemax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_POST["vitmax"]) AND isset($_POST["vitmin"]))
+  {
+    if(is_numeric($_POST["vitmax"]) AND is_numeric($_POST["vitmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Vitesse BETWEEN " . $_POST["vitmin"] . " AND " . $_POST["vitmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_POST["taillemax"]) AND isset($_POST["taillemin"]))
+  {
+    if(is_numeric($_POST["taillemax"]) AND is_numeric($_POST["taillemin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Taille BETWEEN " . $_POST["taillemin"] . " AND " . $_POST["taillemax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_POST["poidsmax"]) AND isset($_POST["poidsmin"]))
+  {
+    if(is_numeric($_POST["poidsmax"]) AND is_numeric($_POST["poidsmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Poids BETWEEN " . $_POST["poidsmin"] . " AND " . $_POST["poidsmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  /*----------BLOCK TYPES----------*/
+
+  if(isset($_POST["normal"]))
+  {
+    $blockTypes = $blockTypes . "(Type1 = 'Normal' OR Type2 = 'Normal')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["feu"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Feu' OR Type2 = 'Feu')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["eau"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Eau' OR Type2 = 'Eau')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["plante"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Plante' OR Type2 = 'Plante')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["plante"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Plante' OR Type2 = 'Plante')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["electrique"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Electrik' OR Type2 = 'Electrik')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["glace"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Glace' OR Type2 = 'Glace')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["combat"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Combat' OR Type2 = 'Combat')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["poison"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Poison' OR Type2 = 'Poison')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["sol"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Sol' OR Type2 = 'Sol')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_POST["vol"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Vol' OR Type2 = 'Vol')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["poison"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Poison' OR Type2 = 'Poison')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["psy"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Psy' OR Type2 = 'Psy')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["insecte"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Insecte' OR Type2 = 'Insecte')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["roche"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Roche' OR Type2 = 'Roche')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["spectre"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Spectre' OR Type2 = 'Spectre')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["dragon"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Dragon' OR Type2 = 'Dragon')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["tenebres"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Tenebres' OR Type2 = 'Tenebres')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["acier"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Acier' OR Type2 = 'Acier')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_POST["fee"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Fee' OR Type2 = 'Fee')";
+    $needBlockTypes= true;
+  }
+
+  /*----------BLOCK NOT TYPES----------*/
+
+  if(isset($_POST["notnormal"]))
+  {
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Normal' AND (Type2 <> 'Normal' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notfeu"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Feu' AND (Type2 <> 'Feu' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["noteau"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Eau' AND (Type2 <> 'Eau' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notplante"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Plante' AND (Type2 <> 'Plante' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notplante"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Plante' AND (Type2 <> 'Plante' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notelectrique"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Electrik' AND (Type2 <> 'Electrik' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notglace"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Glace' AND (Type2 <> 'Glace' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notcombat"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Combat' AND (Type2 <> 'Combat' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notpoison"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Poison' AND (Type2 <> 'Poison' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notsol"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Sol' AND (Type2 <> 'Sol' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_POST["notvol"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Vol' AND (Type2 <> 'Vol' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notpoison"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Poison' AND (Type2 <> 'Poison' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notpsy"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Psy' AND (Type2 <> 'Psy' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notinsecte"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Insecte' AND (Type2 <> 'Insecte' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notroche"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Roche' AND (Type2 <> 'Roche' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notspectre"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Spectre' AND (Type2 <> 'Spectre' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notdragon"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Dragon' AND (Type2 <> 'Dragon' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["nottenebres"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Tenebres' AND (Type2 <> 'Tenebres' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notacier"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Acier' AND (Type2 <> 'Acier' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_POST["notfee"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Fee' AND (Type2 <> 'Fee' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  /*----------BLOCK PLUS----------*/
+  if(isset($_POST["double"]))
+  {
+    $blockPlus = $blockPlus . "(Type2 IS NOT NULL)";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_POST["mono"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Type2 IS NULL)";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["1Stade"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Pre_evo IS NULL)";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["fStade"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Numero_National NOT IN (SELECT Pre_evo FROM Pokedex WHERE Pre_evo IS NOT NULL))";
+    $needBlockPlus = true;
+  }
+
+   if(isset($_GET["legend"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Numero_National IN (144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 716, 717, 718))";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["notlegend"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Numero_National NOT IN (144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 716, 717, 718))";
+    $needBlockPlus = true;
+  }
+
+  //Montage des blocks
+  if($needBlockGenerations OR $needBlockStats OR $needBlockTypes OR $needBlockNotTypes OR $needBlockPlus)
+  {
+    $sql = $sql . " WHERE ";
+    if($needBlockGenerations)
+    {
+      $sql = $sql . "(" . $blockGenerations . ")";
+    }
+    if($needBlockStats)
+    {
+      if($needBlockGenerations)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockStats . ")";
+    }
+    if($needBlockTypes)
+    {
+      if($needBlockGenerations OR $needBlockStats)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockTypes . ")";
+    }
+    if($needBlockNotTypes)
+    {
+      if($needBlockGenerations OR $needBlockStats OR $needBlockTypes)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockNotTypes . ")";
+    }
+    if($needBlockPlus)
+    {
+      if($needBlockGenerations OR $needBlockStats OR $needBlockTypes OR $needBlockNotTypes)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockPlus . ")";
+    }
+  }
+
+  //Fin de la requète avec le ORDER BY
+  $sql = $sql . "ORDER BY Numero_National";
+  // exécution de la requête
+  $result = db_query($sql);
+
+
+  /*--------------------Ecriture du fichier voulu--------------------*/
+  $sqlcontent = "-- Base de données: `porygondex.com`\n";
+  $sqlcontent = $sqlcontent . "\n";
+  $sqlcontent = $sqlcontent . 'SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO"' . ";\n";
+  $sqlcontent = $sqlcontent . "\n";
+  $sqlcontent = $sqlcontent . "-- Structure de la table `" . $_POST['NomTable'] . "`\n";
+  $sqlcontent = $sqlcontent . "\n";
+  $sqlcontent = $sqlcontent . "CREATE TABLE IF NOT EXISTS `" . $_POST['NomTable'] . "` (\n";
+  if(isset($_POST['checkNomFr']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Nom_francais'] . "` varchar(255) NULL,\n";
+  }
+  if(isset($_POST['checkNomEn']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Nom_anglais'] . "` varchar(255) NULL,\n";
+  }
+  if(isset($_POST['checkNomJp']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Nom_japonais'] . "` varchar(255) NULL,\n";
+  }
+  $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_National'] . "` int(11) NULL,\n";
+  if(isset($_POST['checkNumJohto']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Johto'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkNumHoenn']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Hoenn'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkNumSinnoh']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Sinnoh'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkNumUnys']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Unys'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkNumUnys2']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Unys_NB2'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkNumKalos_Cotes']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Kalos_Cotes'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkNumKalos_Centre']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Kalos_Centre'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkNumKalos_Monts']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Numero_Kalos_Monts'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkTaille']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Taille'] . "` decimal(10,0) NULL,\n";
+  }
+  if(isset($_POST['checkPoids']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Poids'] . "` decimal(10,0) NULL,\n";
+  }
+  if(isset($_POST['checkEspece']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Espece'] . "` varchar(255) NULL,\n";
+  }
+  if(isset($_POST['checkType']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Type1'] . "` varchar(255) NULL,\n";
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Type2'] . "` varchar(255) NULL,\n";
+  }
+  if(isset($_POST['checkDescriptionX']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['DescriptionX'] . "` longtext NULL,\n";
+  }
+  if(isset($_POST['checkDescriptionY']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['DescriptionY'] . "` longtext NULL,\n";
+  }
+  if(isset($_POST['checkPreEvo']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Pre_evo'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkCondition']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Condition_d_evolution'] . "` varchar(255) NULL,\n";
+  }
+  if(isset($_POST['checkStats']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['PV'] . "` int(11) NULL,\n";
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Attaque'] . "` int(11) NULL,\n";
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Defense'] . "` int(11) NULL,\n";
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Attaque_spe'] . "` int(11) NULL,\n";
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Defense_spe'] . "` int(11) NULL,\n";
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Vitesse'] . "` int(11) NULL,\n";
+  }
+  if(isset($_POST['checkTalent']))
+  {
+    $sqlcontent = $sqlcontent . "  `" . $_POST['Talent'] . "` varchar(255) NULL,\n";
+  }
+
+  $sqlcontent = $sqlcontent . "  PRIMARY KEY (`" . $_POST['Numero_National'] . "`)\n";
+  $sqlcontent = $sqlcontent . ") ENGINE=MyISAM DEFAULT CHARSET=utf8;\n";
+  $sqlcontent = $sqlcontent . "\n";
+  $sqlcontent = $sqlcontent . "-- Contenu de la table `" . $_POST['NomTable'] . "`\n";
+  $sqlcontent = $sqlcontent . "\n";
+
+  $sqlcontent = $sqlcontent . "INSERT INTO `" . $_POST['NomTable'] . "` (`";
+  $sqlcontent = $sqlcontent . $_POST['Numero_National'] . "`";
+  if(isset($_POST['checkNomEn']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Nom_anglais'] . "`";
+  }
+  if(isset($_POST['checkNomJp']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Nom_japonais'] . "`";
+  }
+  if(isset($_POST['checkNomFr']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Nom_francais'] . "`";
+  }
+  if(isset($_POST['checkNumJohto']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Johto'] . "`";
+  }
+  if(isset($_POST['checkNumHoenn']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Hoenn'] . "`";
+  }
+  if(isset($_POST['checkNumSinnoh']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Sinnoh'] . "`";
+  }
+  if(isset($_POST['checkNumUnys']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Unys'] . "`";
+  }
+  if(isset($_POST['checkNumUnys2']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Unys_NB2'] . "`";
+  }
+  if(isset($_POST['checkNumKalos_Cotes']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Kalos_Cotes'] . "`";
+  }
+  if(isset($_POST['checkNumKalos_Centre']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Kalos_Centre'] . "`";
+  }
+  if(isset($_POST['checkNumKalos_Monts']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Numero_Kalos_Monts'] . "`";
+  }
+  if(isset($_POST['checkTaille']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Taille'] . "`";
+  }
+  if(isset($_POST['checkPoids']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Poids'] . "`";
+  }
+  if(isset($_POST['checkEspece']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Espece'] . "`";
+  }
+  if(isset($_POST['checkType']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Type1'] . "`, `" . $_POST['Type2'] . "`";
+  }
+  if(isset($_POST['checkDescriptionX']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['DescriptionX'] . "`";
+  }
+  if(isset($_POST['checkDescriptionY']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['DescriptionY'] . "`";
+  }
+  if(isset($_POST['checkPreEvo']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Pre_evo'] . "`";
+  }
+  if(isset($_POST['checkCondition']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Condition_d_evolution'] . "`";
+  }
+  if(isset($_POST['checkStats']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['PV'] . "`, `" . $_POST['Attaque'] . "`, `" . $_POST['Defense'] . "`, `" . $_POST['Attaque_spe'] . "`, `" . $_POST['Defense_spe'] . "`, `" . $_POST['Vitesse'] . "`";
+  }
+  if(isset($_POST['checkTalent']))
+  {
+    $sqlcontent = $sqlcontent . ", `" . $_POST['Talent'] . "`";
+  }
+  $sqlcontent = $sqlcontent . ") VALUES\n";
+
+
+  $premier = true;
+  while ($data = $result->fetch(PDO::FETCH_OBJ))
+  {
+          if(!$premier)
+          {
+             $sqlcontent = $sqlcontent . ",";
+          }
+          $sqlcontent = $sqlcontent . "(";
+
+          $sqlcontent = $sqlcontent . $data->Numero_National;
+          if(isset($_POST['checkNomEn']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->Nom_anglais) . "'";
+          }
+          if(isset($_POST['checkNomJp']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->Nom_japonais) . "'";
+          }
+          if(isset($_POST['checkNomFr']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->Nom_francais) . "'";
+          }
+          if(isset($_POST['checkNumJohto']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Johto;
+          }
+          if(isset($_POST['checkNumHoenn']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Hoenn;
+          }
+          if(isset($_POST['checkNumSinnoh']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Sinnoh;
+          }
+          if(isset($_POST['checkNumUnys']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Unys;
+          }
+          if(isset($_POST['checkNumUnys2']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Unys_NB2;
+          }
+          if(isset($_POST['checkNumKalos_Cotes']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Kalos_Cotes;
+          }
+          if(isset($_POST['checkNumKalos_Centre']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Kalos_Centre;
+          }
+          if(isset($_POST['checkNumKalos_Monts']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Numero_Kalos_Monts;
+          }
+          if(isset($_POST['checkTaille']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Taille;
+          }
+          if(isset($_POST['checkPoids']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Poids;
+          }
+          if(isset($_POST['checkEspece']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->Espece) . "'";
+          }
+          if(isset($_POST['checkType']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . $data->Type1 . "', '" . $data->Type2 . "'";
+          }
+          if(isset($_POST['checkDescriptionX']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->DescriptionX) . "'";
+          }
+          if(isset($_POST['checkDescriptionY']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->DescriptionY) . "'";
+          }
+          if(isset($_POST['checkPreEvo']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->Pre_evo;
+          }
+          if(isset($_POST['checkCondition']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->Condition_d_evolution) . "'";
+          }
+          if(isset($_POST['checkStats']))
+          {
+            $sqlcontent = $sqlcontent . "," . $data->PV;
+            $sqlcontent = $sqlcontent . "," . $data->Attaque;
+            $sqlcontent = $sqlcontent . "," . $data->Defense;
+            $sqlcontent = $sqlcontent . "," . $data->Attaque_spe;
+            $sqlcontent = $sqlcontent . "," . $data->Defense_spe;
+            $sqlcontent = $sqlcontent . "," . $data->Vitesse;
+          }
+          if(isset($_POST['checkTalent']))
+          {
+            $sqlcontent = $sqlcontent . ",'" . str_replace("'", "''", $data->Talent) . "'";
+          }
+          
+          $sqlcontent = $sqlcontent . ")\n";
+          $premier = false;
+  }
+  $sqlcontent = $sqlcontent . ";";
+
+  $sqlcontent = str_replace(",  ,", ", NULL,", $sqlcontent);
+  $sqlcontent = str_replace(", ,", ", NULL,", $sqlcontent);
+  $sqlcontent = str_replace(",  ,", ", NULL,", $sqlcontent);
+
+  print $sqlcontent;
+}
+ 

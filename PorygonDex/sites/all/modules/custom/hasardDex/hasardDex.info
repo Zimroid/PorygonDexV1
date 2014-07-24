@@ -1,0 +1,3 @@
+name = hasardDex
+description = Block qui affiche un pokémon de la bdd au hasard.
+core = 7.x

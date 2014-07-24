@@ -1,0 +1,39 @@
+div.info
+{
+	float:right;
+	width:50%;
+}
+
+div.image
+{
+	float:left;
+	width:50%;
+}
+
+div.txtinfo
+{
+	margin-left:30%;
+}
+
+div.noms
+{
+	display: inline-table;
+}
+
+div.lblnoms
+{
+	float: left;
+	height: 3em;
+	margin-right: 0.5em;
+}
+
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) {
+
+	div.txtinfo
+	{
+		margin-left:0%;
+	}
+
+}

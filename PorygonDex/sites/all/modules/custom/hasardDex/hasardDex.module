@@ -1,0 +1,60 @@
+<?php
+
+function hasardDex_block_view($delta = '') {
+  /*$block['content'] = array(
+    'message' => array(
+      '#prefix' => '<div class="class_name">',
+      '#type' => 'markup',
+      '#markup' => 'test121',
+      '#suffix' => '</div>',
+    ),
+  );*/
+
+  $nb = db_query("SELECT COUNT(entity_id) as nb FROM Pokedex")->fetch(PDO::FETCH_OBJ)->nb;
+
+  $nb = date("dmY") % $nb;
+
+
+  $pk = db_query("SELECT Numero_National, Nom_francais, entity_id FROM Pokedex ORDER BY Numero_National");
+
+  $ok = false;
+  while ($data = $pk->fetch(PDO::FETCH_OBJ) AND !$ok)
+  {
+    if($nb == 0)
+    {
+      $block['content'] = array(
+        'message' => array(
+          '#prefix' => '<div>',
+          '#type' => 'markup',
+          '#markup' => blockcreation($data->Numero_National, $data->Nom_francais, $data->entity_id),
+          '#suffix' => '</div>',
+        ),
+      );
+      $ok = true;
+    }
+    $nb--;
+  }
+ 
+  return $block;
+}
+
+function blockcreation($num, $nom, $id)
+{
+  $res = "<h2>Pokémon du jour :</h2>";
+  $res = $res . "<h3>#" . $num . " - " . $nom . "</h3>";
+  $res = $res . '<a href="/Detail?n=' . $num . '"><img style="display: block;margin: auto;max-width:100%; margin-top:1em; margin-bottom:1em;" src="ArtworkDreamWorld/' . $num . '.png"/></a>';
+
+  return $res;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function hasardDex_block_info() {
+  $blocks = array();
+  $blocks['hasardDex'] = array(
+    'info' => t('hasardDex'),
+  );
+ 
+  return $blocks;
+}

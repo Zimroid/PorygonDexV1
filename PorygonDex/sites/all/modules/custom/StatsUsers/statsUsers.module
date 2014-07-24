@@ -1,0 +1,72 @@
+<?php
+
+function get_graphique() {
+
+$content = '<link rel="stylesheet" href="sites/all/modules/custom/StatsUsers/statsUsers.css" /> ';
+$content = $content . '<script type="text/javascript" src="https://www.google.com/jsapi"></script>';
+
+
+
+  // On récupère la liste des statistics Users | nbPKM
+  $sql = "SELECT u.name as nom, count(n.uid) as nb FROM node n, users u WHERE n.type = 'pokemon' AND u.uid = n.uid GROUP BY u.name ORDER BY count(n.uid) DESC";
+  // exécution de la requête
+  $result = db_query($sql);
+
+
+$content = $content . '    <script type="text/javascript">';
+$content = $content . '      google.load("visualization", "1", {packages:["corechart"]});';
+$content = $content . "      google.setOnLoadCallback(drawChart);";
+$content = $content . "      function drawChart() {";
+$content = $content . "        var data = google.visualization.arrayToDataTable([";
+$content = $content . "          ['Pseudo', 'Nombre de Pokemon ajouté'],";
+
+$classement = 1;
+while ($data = $result->fetch(PDO::FETCH_OBJ))
+{
+  $content = $content . "          ['" . $classement . ". " . $data->nom . " : " . $data->nb . " Pokemon ajoutés'," . $data->nb . "],";
+  $classement++;
+}
+
+$content = $content . "        ]);";
+
+$content = $content . "        var options = {";
+//$content = $content . "          title: 'Classement des contributeurs.',";
+$content = $content . "          is3D: true,";
+$content = $content . "          'chartArea':{left:0,width:\"100%\"}";
+$content = $content . "        };";
+
+$content = $content . "        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));";
+$content = $content . "        chart.draw(data, options);";
+$content = $content . "      }";
+$content = $content . "    </script>";
+
+
+$content = $content . '    <div id="piechart_3d" style="width: 900px; height: 500px;"></div>';
+
+
+
+
+
+
+  return $content;
+ }
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+ function statsUsers_menu() {
+
+  $items = array();
+
+  $items['statsUsers'] = array(
+    'title' => "Classement des contributeurs",
+    'page callback' => 'get_graphique',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+ 

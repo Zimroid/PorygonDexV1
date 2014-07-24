@@ -1,0 +1,3 @@
+name = PokedexSqlDownload
+description = Genere le fichier pokedex.sql
+core = 7.x

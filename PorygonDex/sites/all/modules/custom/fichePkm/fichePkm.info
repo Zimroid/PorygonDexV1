@@ -1,0 +1,3 @@
+name = FichePkm
+description = Génère une fiche d'un pokémon.
+core = 7.x

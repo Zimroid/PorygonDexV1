@@ -1,0 +1,78 @@
+<?php
+
+function get_todo_page()
+{
+  $listNumNational = db_query("SELECT field_numero_national_value FROM field_data_field_numero_national ORDER BY field_numero_national_value");
+  $maxNumNational = db_query("SELECT MAX(field_numero_national_value) as max FROM field_data_field_numero_national")->fetch(PDO::FETCH_OBJ)->max;
+  $numNationalCourant = $listNumNational->fetch(PDO::FETCH_OBJ)->field_numero_national_value;
+
+  $listNumNationalSansDescription = db_query("SELECT field_numero_national_value FROM field_data_field_numero_national WHERE entity_id NOT IN (SELECT entity_id FROM field_data_field_description) ORDER BY field_numero_national_value");
+  $maxNumNationalSansDescription = db_query("SELECT MAX(field_numero_national_value) as max FROM field_data_field_numero_national WHERE entity_id NOT IN (SELECT entity_id FROM field_data_field_description)")->fetch(PDO::FETCH_OBJ)->max;
+  $numNationalSansDescriptionCourant = $listNumNationalSansDescription->fetch(PDO::FETCH_OBJ)->field_numero_national_value;
+
+
+  $output = '<p id="legende">Légende :<br/>En noir : Numéros national des Pokémon non répertoriés.<br/>En rouge : Numéro national de Pokémon répertoriés sans description.</p>';
+
+  $c = 0;
+
+  for($i = 1; $i<=718; $i++)
+  {
+    if($i == $numNationalSansDescriptionCourant)
+    {
+      if($numNationalSansDescriptionCourant <= $maxNumNationalSansDescription)
+      {
+        $output = $output . '<div class="nb" style="color:red;">' . $i . '</div>';
+        if($numNationalSansDescriptionCourant < $maxNumNationalSansDescription)
+        {
+          $numNationalSansDescriptionCourant = $listNumNationalSansDescription->fetch(PDO::FETCH_OBJ)->field_numero_national_value;
+        }
+        if($numNationalCourant < $maxNumNational)
+        {
+          $numNationalCourant = $listNumNational->fetch(PDO::FETCH_OBJ)->field_numero_national_value;
+        }
+        $c++;
+      }
+    }
+    else if($i == $numNationalCourant)
+    {
+      if($numNationalCourant < $maxNumNational)
+      {
+        $numNationalCourant = $listNumNational->fetch(PDO::FETCH_OBJ)->field_numero_national_value;
+        //$output = $output . '<div style="color:green; margin:10px; display:inline-block; width:30px;">' . $numNationalCourant . '</div>';
+      }
+    }
+    else
+    {
+      $output = $output . '<div class="nb">' . $i . '</div>';
+      $c++;
+    }
+    if($c == 10)
+    {
+       $output = $output . '<br/>';
+       $c = 0;
+    }
+  }
+
+  return $output;
+
+}
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+ function todo_menu() {
+
+  $items = array();
+
+  $items['Todo'] = array(
+    'title' => "Todo",
+    'page callback' => 'get_todo_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+ 

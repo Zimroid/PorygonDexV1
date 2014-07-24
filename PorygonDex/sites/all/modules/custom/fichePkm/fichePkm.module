@@ -1,0 +1,298 @@
+<?php
+
+function get_fiche_pokemon()
+{
+	global $user;
+	/*----------Verification du parametre n----------*/
+	if(!isset($_GET["n"]))
+	{
+		header('Location: ' . $_SERVER['PHP_SELF']);
+		exit;
+	}
+	$n = $_GET["n"];
+	if(!ctype_digit($n))
+	{
+		header('Location: ' . $_SERVER['PHP_SELF']);
+		exit;
+	}
+	if($n <= 0 OR $n > 718)
+	{
+		header('Location: ' . $_SERVER['PHP_SELF']);
+		exit;
+	}
+	/*--------------------jQueryUI + CSS--------------------*/
+	$content = '  <link rel="stylesheet" href="jquery/css/flick/jquery-ui-1.10.3.custom.css" /> ';
+	$content = $content . '  <script src="jquery/js/jquery-1.9.1.js"></script> ';
+	$content = $content . '  <script src="jquery/js/jquery-ui-1.10.3.custom.js"></script> ';
+	$content = $content . '  <link rel="stylesheet" href="sites/all/modules/custom/fichePkm/fichePkm.css" /> ';
+	$content = $content . '  <link rel="stylesheet" href="tooltipster/tooltipster.css" /> ';
+	$content = $content . '  <script src="tooltipster/jquery.tooltipster.js"></script> ';
+	$content = $content . '  <script src="sites/all/modules/custom/fichePkm/chart.js"></script>';
+
+	$pokemon = db_query("SELECT * FROM Pokedex WHERE Numero_National = :n", array(':n' => $n))->fetch(PDO::FETCH_OBJ);
+
+	/*----------FICHE----------*/
+
+	$content = $content . '';
+	$content = $content . '<h1 class="titre">#' . $pokemon->Numero_National . ' - ' . $pokemon->Nom_francais;
+	if (in_array('administrator', array_values($user->roles)) OR in_array('Maitre Pokemon', array_values($user->roles)))
+		$content = $content . ' [<a href="node/' . $pokemon->entity_id . '/edit">Modifier</a>]';
+	$content = $content . '</h1>';
+
+	$content = $content . '<div id="fiche">';
+	$content = $content . '      <div class="image">';
+	$content = $content . '      <img class="images" src="ArtworkDreamWorld/' . $pokemon->Numero_National . '.png">';
+	$content = $content . '      </div>';//fermeture div images
+	$content = $content . '      <div class="info">';
+	$content = $content . '      <div class="spaceBottom">';
+	$content = $content . '        <div class="txtinfo">';
+	$content = $content . '          <div>';
+	$content = $content . '            <div class="lblnoms"><b>Nom : </b></div>';//div label nom
+	$content = $content . '            <div class="noms">' . $pokemon->Nom_francais . ' (fr)<br>';
+	$content = $content .              $pokemon->Nom_anglais . ' (en)<br>';
+	$content = $content .              $pokemon->Nom_japonais . ' (jp)</div>';//fermeture div noms
+	$content = $content . '          </div>';//fermeture div des nom après label
+	$content = $content . '          <b>Type : </b><img src="logosTypes/' . $pokemon->Type1 . '.png">';
+	if(isset($pokemon->Type2))
+	{
+	  $content = $content . '/<img src="logosTypes/' . $pokemon->Type2 . '.png">';
+	}
+	$content = $content . '          <br><b>Taille : </b>' . $pokemon->Taille . ' m<br>';
+	$content = $content . '          <b>Poids : </b>' . $pokemon->Poids . ' kg<br>';
+	$content = $content . '          <b>Espece : </b>' . $pokemon->Espece;
+	$content = $content . '        </div>';//fermeture div txtinfo
+	$content = $content . '      </div>';//fermeture div spaceBottom
+
+	$content = $content . '      <div>';
+	$content = $content . '        <div class="txtinfo">';
+	$content = $content . '          <div>';
+	$content = $content . '            <div class="noms"><b>#National - </b>' . $pokemon->Numero_National . '<br>';
+	if(isset($pokemon->Numero_Johto))
+	$content = $content . '             <b>#Johto - </b>' . $pokemon->Numero_Johto . '<br>';
+	if(isset($pokemon->Numero_Hoenn))
+	$content = $content . '             <b>#Hoenn - </b>' . $pokemon->Numero_Hoenn . '<br>';
+	if(isset($pokemon->Numero_Sinnoh))
+	$content = $content . '             <b>#Sinnoh - </b>' . $pokemon->Numero_Sinnoh . '<br>';
+	if(isset($pokemon->Numero_Unys))
+	$content = $content . '             <b>#Unys - </b>' . $pokemon->Numero_Unys . '<br>';
+	if(isset($pokemon->Numero_Unys_NB2))
+	$content = $content . '             <b>#Unys(NB2) - </b>' . $pokemon->Numero_Unys_NB2 . '<br>';
+	if(isset($pokemon->Numero_Kalos_Cotes))
+	$content = $content . '             <b>#Kalos(Côtes) - </b>' . $pokemon->Numero_Kalos_Cotes . '<br>';
+	if(isset($pokemon->Numero_Kalos_Centre))
+	$content = $content . '             <b>#Kalos(Centre) - </b>' . $pokemon->Numero_Kalos_Centre . '<br>';
+	if(isset($pokemon->Numero_Kalos_Monts))
+	$content = $content . '             <b>#Kalos(Monts) - </b>' . $pokemon->Numero_Kalos_Monts;
+	$content = $content . '        		</div>';//fermeture div numero
+	$content = $content . '        </div>';//fermeture div simple
+	$content = $content . '      </div>';//fermeture div txtinfo
+	$content = $content . '		</div>';//fermeture div simple
+	$content = $content . '      </div>';//fermeture div info
+	$content = $content . '</div>';//fermeture div fiche
+
+	/*----------DESCRIPTION----------*/
+	$nb = db_query("SELECT field_description_pokescience_value FROM field_data_field_description_pokescience WHERE entity_id IN (SELECT entity_id FROM field_data_field_numero_pokescience WHERE field_numero_pokescience_value = :n)", array(':n' => $n))->rowCount();
+	if ($nb==0 AND (in_array('administrator', array_values($user->roles)) OR in_array('Professeur', array_values($user->roles)) OR in_array('Apprenti', array_values($user->roles))))
+		$content = $content . '<p class="txtCenter">[<a href="node/add/pokescience">Ajouter une fiche Pokescience</a>]</p>';
+	if(isset($pokemon->DescriptionX))$nb++;
+	if(isset($pokemon->DescriptionY))$nb++;
+
+
+	if($nb>0)
+	{
+		$science = db_query("SELECT field_description_pokescience_value FROM field_data_field_description_pokescience WHERE entity_id IN (SELECT entity_id FROM field_data_field_numero_pokescience WHERE field_numero_pokescience_value = :n)", array(':n' => $n));
+		$content = $content . '<div id="description">';
+		$content = $content . '<h1 class="txtCenter">Description' . (($nb>1)?'s':'') . '</h1>';
+		$content = $content . '<p class="txtCenter">';
+		if(isset($pokemon->DescriptionX))
+		{
+			$content = $content . '<b>X : </b>' . $pokemon->DescriptionX;
+			$content = $content . '<br>';
+		}
+		if(isset($pokemon->DescriptionY))
+		{
+			$content = $content . '<b>Y : </b>' . $pokemon->DescriptionY;
+			$content = $content . '<br>';
+		}
+		while ($data = $science->fetch(PDO::FETCH_OBJ))
+		{
+			$content = $content . '<b>Pokescience : </b>' . $data->field_description_pokescience_value . '</p>';
+			$pokescience = true;
+		}
+		$content = $content . '</p>';
+		$content = $content . '</div>';
+	}
+
+
+	/*----------FAIBLESSES----------*/
+
+	$content = $content . '<div id="effetsAttaques">';
+
+	$content = $content . '<h1 class="txtCenter">Effets des attaques sur ' . $pokemon->Nom_francais . '</h1>';
+
+	$faiblesses = db_query("SELECT Normal, Feu, Eau, Plante, Electrik, Glace, Combat, Poison, Sol, Vol, Psy, Insecte, Roche, Spectre, Dragon, Tenebres, Acier, Fee FROM ResFaiblesses WHERE NomType = :t", array(':t' => $pokemon->Type1))->fetch(PDO::FETCH_OBJ);
+	if(isset($pokemon->Type2))
+	{
+		$faiblesses2 = db_query("SELECT Normal, Feu, Eau, Plante, Electrik, Glace, Combat, Poison, Sol, Vol, Psy, Insecte, Roche, Spectre, Dragon, Tenebres, Acier, Fee FROM ResFaiblesses WHERE NomType = :t", array(':t' => $pokemon->Type2))->fetch(PDO::FETCH_OBJ);
+		$faiblesses->Normal = $faiblesses->Normal * $faiblesses2->Normal;
+		$faiblesses->Feu = $faiblesses->Feu * $faiblesses2->Feu;
+		$faiblesses->Eau = $faiblesses->Eau * $faiblesses2->Eau;
+		$faiblesses->Plante = $faiblesses->Plante * $faiblesses2->Plante;
+		$faiblesses->Electrik = $faiblesses->Electrik * $faiblesses2->Electrik;
+		$faiblesses->Glace = $faiblesses->Glace * $faiblesses2->Glace;
+		$faiblesses->Combat = $faiblesses->Combat * $faiblesses2->Combat;
+		$faiblesses->Poison = $faiblesses->Poison * $faiblesses2->Poison;
+		$faiblesses->Sol = $faiblesses->Sol * $faiblesses2->Sol;
+		$faiblesses->Vol = $faiblesses->Vol * $faiblesses2->Vol;
+		$faiblesses->Psy = $faiblesses->Psy * $faiblesses2->Psy;
+		$faiblesses->Insecte = $faiblesses->Insecte * $faiblesses2->Insecte;
+		$faiblesses->Roche = $faiblesses->Roche * $faiblesses2->Roche;
+		$faiblesses->Spectre = $faiblesses->Spectre * $faiblesses2->Spectre;
+		$faiblesses->Dragon = $faiblesses->Dragon * $faiblesses2->Dragon;
+		$faiblesses->Tenebres = $faiblesses->Tenebres * $faiblesses2->Tenebres;
+		$faiblesses->Acier = $faiblesses->Acier * $faiblesses2->Acier;
+		$faiblesses->Fee = $faiblesses->Fee * $faiblesses2->Fee;
+	}
+	$content = $content . '<table id="faiblesses" class="txtCenter">';
+	$content = $content . '	<tr><td><img src="logosTypes/Normal.png"/></td><td><img src="logosTypes/Feu.png"/></td><td><img src="logosTypes/Eau.png"/></td><td><img src="logosTypes/Plante.png"/></td><td><img src="logosTypes/Electrik.png"/></td><td><img src="logosTypes/Glace.png"/></td><td><img src="logosTypes/Combat.png"/></td><td><img src="logosTypes/Poison.png"/></td><td><img src="logosTypes/Sol.png"/></td><td><img src="logosTypes/Vol.png"/></td><td><img src="logosTypes/Psy.png"/></td><td><img src="logosTypes/Insecte.png"/></td><td><img src="logosTypes/Roche.png"/></td><td><img src="logosTypes/Spectre.png"/></td><td><img src="logosTypes/Dragon.png"/></td><td><img src="logosTypes/Tenebres.png"/></td><td><img src="logosTypes/Acier.png"/></td><td><img src="logosTypes/Fee.png"/></td></tr>';
+	$content = $content . '	<tr><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Normal) . '">X' . $faiblesses->Normal . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Feu) . '">X' . $faiblesses->Feu . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Eau) . '">X' . $faiblesses->Eau . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Plante) . '">X' . $faiblesses->Plante . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Electrik) . '">X' . $faiblesses->Electrik . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Glace) . '">X' . $faiblesses->Glace . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Combat) . '">X' . $faiblesses->Combat . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Poison) . '">X' . $faiblesses->Poison . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Sol) . '">X' . $faiblesses->Sol . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Vol) . '">X' . $faiblesses->Vol . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Psy) . '">X' . $faiblesses->Psy . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Insecte) . '">X' . $faiblesses->Insecte . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Roche) . '">X' . $faiblesses->Roche . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Spectre) . '">X' . $faiblesses->Spectre . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Dragon) . '">X' . $faiblesses->Dragon . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Tenebres) . '">X' . $faiblesses->Tenebres . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Acier) . '">X' . $faiblesses->Acier . '</td><td class="td' . preg_replace("/[^a-zA-Z0-9]/i","_", $faiblesses->Fee) . '">X' . $faiblesses->Fee . '</td></tr>';
+	$content = $content . '</table>';
+
+	$content = $content . '</div>';
+
+	/*----------EVOLUTION----------*/
+
+	$nb = db_query("SELECT Numero_National, Nom_francais FROM Pokedex WHERE Pre_evo = :n", array(':n' => $n))->rowCount();
+	if(isset($pokemon->Pre_evo))$nb++;
+
+	if($nb > 0)
+	{
+		$width = 100/$nb;
+		$widthevo = 100;
+		$content = $content . '<div id="evolution">';
+		$content = $content . '<h1 class="txtCenter">Evolution' . (($nb>1)?'s':'') . ' d' . ((in_array($pokemon->Nom_francais[0], array('A', 'E', 'I', 'O', 'U', 'Y', 'H')))?'\'':'e ') . $pokemon->Nom_francais . '</h1>';
+		if(isset($pokemon->Pre_evo))
+		{
+			$pre_evo = db_query("SELECT Nom_francais FROM Pokedex WHERE Numero_National = :n", array(':n' => $pokemon->Pre_evo))->fetch(PDO::FETCH_OBJ);
+			$content = $content . '<div id="pre_evo" class="imgEvol" style="width:' . $width . '%;' . (($nb>1)?' border-right: 2px #CCCCCC dashed; margin-right: -2px;':'') . '">';
+			$content = $content . '		<p class="txtCenter">Pré-Evolution</p>';
+			$content = $content . '		<a href="Detail?n=' . $pokemon->Pre_evo . '"><img class="images evo tooltip" title="'. $pokemon->Condition_d_evolution . '" src="ArtworkDreamWorld/' . $pokemon->Pre_evo . '.png"></a>';
+			$content = $content . '		<p class="txtCenter">#' . $pokemon->Pre_evo . ' - ' . $pre_evo->Nom_francais . '</p>';
+			$content = $content . '</div>';
+			$widthevo = $widthevo - $width;
+			if($nb>1)
+			$width = 100/($nb-1);
+			else
+			$width = 100;
+			$nb--;
+		}
+		if($nb > 0)
+		{
+			$content = $content . '<div id="evo" style="width:' . $widthevo . '%">';
+			if(isset($pokemon->Pre_evo))
+			$content = $content . '		<p class="txtCenter">Evolution</p>';
+			else
+			$content = $content . '		<br>';
+			$evo = db_query("SELECT Numero_National, Nom_francais, Condition_d_evolution FROM Pokedex WHERE Pre_evo = :n ORDER BY Numero_National", array(':n' => $n));
+			while ($data = $evo->fetch(PDO::FETCH_OBJ))
+			{
+				$content = $content . '<div class="imgEvol" style="width:' . $width . '%;">';
+				$content = $content . '		<a href="Detail?n=' . $data->Numero_National . '"><img class="images evo tooltip" title="'. $data->Condition_d_evolution . '" src="ArtworkDreamWorld/' . $data->Numero_National . '.png"></a>';
+				$content = $content . '		<p class="txtCenter">#' . $data->Numero_National . ' - ' . $data->Nom_francais . '</p>';
+				$content = $content . '</div>';
+			}
+			$content = $content . '</div>';
+		}
+		$content = $content . '</div>';
+	}
+
+	/*----------TALENTS----------*/
+
+	$content = $content . '<div id="talents">';
+	$content = $content . '<h1 class="txtCenter">Talent' . ((substr_count($pokemon->Talent, ',')>0)?'s':'') . ' d' . ((in_array($pokemon->Nom_francais[0], array('A', 'E', 'I', 'O', 'U', 'Y', 'H')))?'\'':'e ') . $pokemon->Nom_francais . '</h1>';
+	$content = $content . '<p class="txtCenter">' . $pokemon->Talent . '</p>';
+	$content = $content . '</div>';
+
+	/*----------STATS----------*/
+
+	$content = $content . '<div id="statistiques">';
+	$content = $content . '<h1 class="txtCenter">Statistiques d' . ((in_array($pokemon->Nom_francais[0], array('A', 'E', 'I', 'O', 'U', 'Y', 'H')))?'\'':'e ') . $pokemon->Nom_francais . '</h1>';
+	
+	$content = $content . '<div id="graphStats" class="txtCenter">';
+	$content = $content . '<canvas id="stats" width="400" height="400"></canvas>';
+	$content = $content . '</div>';
+
+	$content = $content . '<div id="lblStats">';
+	$content = $content . '<table id="tableStats">';
+	$content = $content . '<tr class="txtCenter"><td colspan="2"><b>Statistiques de base</b></td></tr>';
+	$content = $content . '<tr><td><b>PV</b></td><td>' . $pokemon->PV . '</td></tr>';
+	$content = $content . '<tr><td><b>Attaque</b></td><td>' . $pokemon->Attaque . '</td></tr>';
+	$content = $content . '<tr><td><b>Defense</b></td><td>' . $pokemon->Defense . '</td></tr>';
+	$content = $content . '<tr><td><b>Attaque spéciale</b></td><td>' . $pokemon->Attaque_spe . '</td></tr>';
+	$content = $content . '<tr><td><b>Défense spéciale</b></td><td>' . $pokemon->Defense_spe . '</td></tr>';
+	$content = $content . '<tr><td><b>Vitesse</b></td><td>' . $pokemon->Vitesse . '</td></tr>';
+	$content = $content . '</div>';
+	$content = $content . '</table>';
+	$content = $content . '</div>';
+
+
+	$content = $content . '<script>';
+	$content = $content . 'var ctx = document.getElementById("stats").getContext("2d");';
+	$content = $content . 'var data = {';
+	$content = $content . 'labels : ["PV","ATK","DEF","VIT","DEF SPE","ATK SPE"],';
+	$content = $content . 'datasets : [';
+	$content = $content . '				{';
+	$content = $content . '					fillColor : "rgba(255,255,255,0)",';
+	$content = $content . '					strokeColor : "rgba(0,0,0,0)",';
+	$content = $content . '					pointColor : "rgba(0,0,0,0)",';
+	$content = $content . '					pointStrokeColor : "#fff",';
+	$content = $content . '					data : [255,165,230,160,230,154]';
+	$content = $content . '				},';
+	$content = $content . '				{';
+	$content = $content . '					fillColor : "rgba(255,255,255,0)",';
+	$content = $content . '					strokeColor : "rgba(0,0,0,0)",';
+	$content = $content . '					pointColor : "rgba(0,0,0,0)",';
+	$content = $content . '					pointStrokeColor : "#fff",';
+	$content = $content . '					data : [1,2,5,5,20,10]';
+	$content = $content . '				},';
+	$content = $content . '				{';
+	$content = $content . '					fillColor : "rgba(151,187,205,0.5)",';
+	$content = $content . '					strokeColor : "rgba(151,187,205,1)",';
+	$content = $content . '					pointColor : "rgba(151,187,205,1)",';
+	$content = $content . '					pointStrokeColor : "#fff",';
+	$content = $content . '					data : [' . $pokemon->PV . ',' . $pokemon->Attaque . ',' . $pokemon->Defense . ',' . $pokemon->Vitesse . ',' . $pokemon->Defense_spe . ',' . $pokemon->Attaque_spe . ']';
+	$content = $content . '				}';
+	$content = $content . '		]';
+	$content = $content . '}';
+	$content = $content . '</script>';
+
+
+	$content = $content . '<script>';
+	$content = $content . 'document.title = "' . $pokemon->Nom_francais . ' " + document.title;';
+	$content = $content . '$(document).ready(function() {';
+	$content = $content . '   $(".tooltip").tooltipster();';
+	$content = $content . '});';
+	$content = $content . 'new Chart(ctx).Radar(data, option = {scaleStartValue : 90, scaleStepWidth : 100});';
+	$content = $content . '</script>';
+	return $content;
+}
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+function fichePkm_menu()
+{
+
+  $items = array();
+
+  $items['Detail'] = array(
+    //'title' => "",
+    'page callback' => 'get_fiche_pokemon',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}

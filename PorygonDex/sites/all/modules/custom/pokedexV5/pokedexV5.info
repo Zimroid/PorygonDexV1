@@ -1,0 +1,3 @@
+name = PokedexV5
+description = Liste des pokemon de Pokedex.sql avec parametre de recherche et trie. Lien vers fiches détaillé.
+core = 7.x

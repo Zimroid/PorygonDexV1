@@ -1,0 +1,212 @@
+<?php
+
+function get_list_pokemon_en_attente() {
+
+if(isset($_POST['num']))
+{
+  $pokemon = db_query("SELECT nf.entity_id, d.field_description_value, e.field_espece_value, na.field_nom_anglais_value, nf.field_nom_francais_value, nj.field_nom_japonais_value, numj.field_numero_johto_value, numn.field_numero_national_value, nums.field_numero_sinnoh_value, numu.field_numero_unys_value, numu2.field_numero_unys_nb2_value, p.field_poids_value, pe.field_pre_evo_value, t.field_taille_value, t1.field_type1_value, t2.field_type2_value FROM field_data_field_nom_francais nf LEFT JOIN field_data_field_description d ON nf.entity_id = d.entity_id LEFT JOIN field_data_field_espece e ON nf.entity_id = e.entity_id LEFT JOIN field_data_field_nom_anglais na ON nf.entity_id = na.entity_id LEFT JOIN field_data_field_nom_japonais nj ON nf.entity_id = nj.entity_id LEFT JOIN field_data_field_numero_johto numj ON nf.entity_id = numj.entity_id LEFT JOIN field_data_field_numero_national numn ON nf.entity_id = numn.entity_id LEFT JOIN field_data_field_numero_sinnoh nums ON nf.entity_id = nums.entity_id LEFT JOIN field_data_field_numero_unys numu ON nf.entity_id = numu.entity_id LEFT JOIN field_data_field_numero_unys_nb2 numu2 ON nf.entity_id = numu2.entity_id LEFT JOIN field_data_field_poids p ON nf.entity_id = p.entity_id LEFT JOIN field_data_field_pre_evo pe ON nf.entity_id = pe.entity_id LEFT JOIN field_data_field_taille t ON nf.entity_id = t.entity_id LEFT JOIN field_data_field_type1 t1 ON nf.entity_id = t1.entity_id LEFT JOIN field_data_field_type2 t2 ON nf.entity_id = t2.entity_id WHERE numn.field_numero_national_value = :n", array(':n' => $_POST['num']))->fetch(PDO::FETCH_OBJ);
+  echo '      <div class="image">';
+  echo '      <a href="' . $_SERVER['PHP_SELF'] . '/?q=node/' . $pokemon->entity_id . '"><img class="tooltip" title="Accéder à la fiche de '. $pokemon->field_nom_francais_value . '" style="max-width:100%; display:block; margin:auto;" src="../../../ArtworkDreamWorld/' . $pokemon->field_numero_national_value . '.png"></a>';
+  echo '      </div>';
+  echo '      <div class="info">';
+  echo '        <div class="txtinfo">';
+  echo '          <div>';
+  echo '            <div class="lblnoms"><b>Nom : </b></div>';
+  echo '            <div class="noms">' . $pokemon->field_nom_francais_value . ' (fr)<br>';
+  echo                $pokemon->field_nom_anglais_value . ' (en)<br>';
+  echo                $pokemon->field_nom_japonais_value . ' (jp)</div>';
+  echo '          </div>';
+  echo '          <b>Type : </b>' . $pokemon->field_type1_value;
+  if($pokemon->field_type2_value)
+  {
+  echo '/' . $pokemon->field_type2_value;
+  }
+  echo '          <br><b>Taille : </b>' . $pokemon->field_taille_value . ' m<br>';
+  echo '          <b>Poids : </b>' . $pokemon->field_poids_value . ' kg<br>';
+  echo '          <b>Espece : </b>' . $pokemon->field_espece_value;
+  echo '        </div>';
+  echo '      </div>';
+  exit;
+}
+
+$content = '  <link rel="stylesheet" href="jquery/css/flick/jquery-ui-1.10.3.custom.css" /> ';
+$content = $content . '  <script src="jquery/js/jquery-1.9.1.js"></script> ';
+$content = $content . '  <script src="jquery/js/jquery-ui-1.10.3.custom.js"></script> ';
+$content = $content . '  <link rel="stylesheet" href="sites/all/modules/custom/attenteDex/attenteDex.css" /> ';
+$content = $content . '  <link rel="stylesheet" href="tooltipster/tooltipster.css" /> ';
+$content = $content . '  <script src="tooltipster/jquery.tooltipster.js"></script> ';
+$content = $content . '  <script> ';
+$content = $content . '  $(function() { ';
+$content = $content . '    $( ".accordion" ).accordion({ ';
+$content = $content . '      collapsible: true, ';
+$content = $content . '      heightStyle: "content" ';
+$content = $content . '    }); ';
+$content = $content . '  }); ';
+$content = $content . '  </script> ';
+
+
+$content = $content . '<div class="accordion"> ';
+
+
+  // On récupère la liste des pokemon non plublié
+  $sql = "SELECT num.field_numero_national_value, nom.field_nom_francais_value FROM field_data_field_numero_national num, field_data_field_nom_francais nom WHERE num.entity_id = nom.entity_id AND num.entity_id IN (SELECT nid FROM node WHERE status = 0) ORDER BY num.field_numero_national_value";
+  // exécution de la requête
+  $result = db_query($sql);
+
+
+    // On récupère le premier pokemon
+  $premier = "SELECT nf.entity_id, d.field_description_value, e.field_espece_value, na.field_nom_anglais_value, nf.field_nom_francais_value, nj.field_nom_japonais_value, numj.field_numero_johto_value, numn.field_numero_national_value, nums.field_numero_sinnoh_value, numu.field_numero_unys_value, numu2.field_numero_unys_nb2_value, p.field_poids_value, pe.field_pre_evo_value, t.field_taille_value, t1.field_type1_value, t2.field_type2_value FROM field_data_field_nom_francais nf LEFT JOIN field_data_field_description d ON nf.entity_id = d.entity_id LEFT JOIN field_data_field_espece e ON nf.entity_id = e.entity_id LEFT JOIN field_data_field_nom_anglais na ON nf.entity_id = na.entity_id LEFT JOIN field_data_field_nom_japonais nj ON nf.entity_id = nj.entity_id LEFT JOIN field_data_field_numero_johto numj ON nf.entity_id = numj.entity_id LEFT JOIN field_data_field_numero_national numn ON nf.entity_id = numn.entity_id LEFT JOIN field_data_field_numero_sinnoh nums ON nf.entity_id = nums.entity_id LEFT JOIN field_data_field_numero_unys numu ON nf.entity_id = numu.entity_id LEFT JOIN field_data_field_numero_unys_nb2 numu2 ON nf.entity_id = numu2.entity_id LEFT JOIN field_data_field_poids p ON nf.entity_id = p.entity_id LEFT JOIN field_data_field_pre_evo pe ON nf.entity_id = pe.entity_id LEFT JOIN field_data_field_taille t ON nf.entity_id = t.entity_id LEFT JOIN field_data_field_type1 t1 ON nf.entity_id = t1.entity_id LEFT JOIN field_data_field_type2 t2 ON nf.entity_id = t2.entity_id WHERE nf.entity_id = (SELECT entity_id FROM field_data_field_numero_national WHERE field_numero_national_value = (SELECT MIN(num.field_numero_national_value) FROM node n, field_data_field_numero_national num WHERE n.nid = num.entity_id AND n.status = 0 AND n.type ='pokemon'))";
+  $bulbi = db_query($premier);
+  $premier = true;
+
+while ($data = $result->fetch(PDO::FETCH_OBJ))
+{
+$content = $content . '<h3 id="' . $data->field_numero_national_value . '">#' . $data->field_numero_national_value . ' - ' . $data->field_nom_francais_value . '</h3>';
+$content = $content . '<div id="t' . $data->field_numero_national_value . '">';
+if($premier)
+{
+  $premier = $bulbi->fetch(PDO::FETCH_OBJ);
+  $content = $content . '      <div class="image">';
+  $content = $content . '      <a href="' . $_SERVER['PHP_SELF'] . '/?q=node/' . $premier->entity_id . '"><img class="tooltip" title="Accéder à la fiche de '. $premier->field_nom_francais_value . '" style="max-width:100%; display:block; margin:auto;" src="../../../ArtworkDreamWorld/' . $premier->field_numero_national_value . '.png"></a>';
+  $content = $content . '      </div>';
+  $content = $content . '      <div class="info">';
+  $content = $content . '        <div class="txtinfo">';
+  $content = $content . '          <div>';
+  $content = $content . '            <div class="lblnoms"><b>Nom : </b></div>';
+  $content = $content . '            <div class="noms">' . $premier->field_nom_francais_value . ' (fr)<br>';
+  $content = $content .                $premier->field_nom_anglais_value . ' (en)<br>';
+  $content = $content .                $premier->field_nom_japonais_value . ' (jp)</div>';
+  $content = $content . '          </div>';
+  $content = $content . '          <b>Type : </b>' . $premier->field_type1_value;
+    if($premier->field_type2_value)
+    {
+  $content = $content . '/' . $premier->field_type2_value;
+    }
+  $content = $content . '          <br><b>Taille : </b>' . $premier->field_taille_value . ' m<br>';
+  $content = $content . '          <b>Poids : </b>' . $premier->field_poids_value . ' kg<br>';
+  $content = $content . '          <b>Espece : </b>' . $premier->field_espece_value;
+  $content = $content . '        </div>';
+  $content = $content . '      </div>';
+  $premier = false;
+}
+$content = $content . '</div>';
+}
+
+$content = $content . '</div>';
+
+
+
+
+
+$content = $content . "<br><h1>En attente d'une mise à jour du pokedex</h1>";
+
+$content = $content . '<div class="accordion"> ';
+
+
+  // On récupère la liste des pokemon plublié mais absent du pokedex
+  $sql = "SELECT num.field_numero_national_value, nom.field_nom_francais_value FROM field_data_field_numero_national num, field_data_field_nom_francais nom WHERE num.entity_id = nom.entity_id AND num.entity_id IN (SELECT nid FROM node WHERE status = 1) AND num.entity_id NOT IN (SELECT entity_id FROM Pokedex) ORDER BY num.field_numero_national_value";
+  // exécution de la requête
+  $result = db_query($sql);
+
+
+    // On récupère le premier pokemon
+  $premier = "SELECT nf.entity_id, d.field_description_value, e.field_espece_value, na.field_nom_anglais_value, nf.field_nom_francais_value, nj.field_nom_japonais_value, numj.field_numero_johto_value, numn.field_numero_national_value, nums.field_numero_sinnoh_value, numu.field_numero_unys_value, numu2.field_numero_unys_nb2_value, p.field_poids_value, pe.field_pre_evo_value, t.field_taille_value, t1.field_type1_value, t2.field_type2_value FROM field_data_field_nom_francais nf LEFT JOIN field_data_field_description d ON nf.entity_id = d.entity_id LEFT JOIN field_data_field_espece e ON nf.entity_id = e.entity_id LEFT JOIN field_data_field_nom_anglais na ON nf.entity_id = na.entity_id LEFT JOIN field_data_field_nom_japonais nj ON nf.entity_id = nj.entity_id LEFT JOIN field_data_field_numero_johto numj ON nf.entity_id = numj.entity_id LEFT JOIN field_data_field_numero_national numn ON nf.entity_id = numn.entity_id LEFT JOIN field_data_field_numero_sinnoh nums ON nf.entity_id = nums.entity_id LEFT JOIN field_data_field_numero_unys numu ON nf.entity_id = numu.entity_id LEFT JOIN field_data_field_numero_unys_nb2 numu2 ON nf.entity_id = numu2.entity_id LEFT JOIN field_data_field_poids p ON nf.entity_id = p.entity_id LEFT JOIN field_data_field_pre_evo pe ON nf.entity_id = pe.entity_id LEFT JOIN field_data_field_taille t ON nf.entity_id = t.entity_id LEFT JOIN field_data_field_type1 t1 ON nf.entity_id = t1.entity_id LEFT JOIN field_data_field_type2 t2 ON nf.entity_id = t2.entity_id WHERE nf.entity_id = (SELECT entity_id FROM field_data_field_numero_national WHERE field_numero_national_value = (SELECT MIN(num.field_numero_national_value) FROM node n, field_data_field_numero_national num WHERE n.nid = num.entity_id AND n.status = 1 AND n.type ='pokemon' AND n.nid NOT IN (SELECT entity_id FROM Pokedex)))";
+
+
+
+
+  $bulbi = db_query($premier);
+  $premier = true;
+
+while ($data = $result->fetch(PDO::FETCH_OBJ))
+{
+$content = $content . '<h3 id="' . $data->field_numero_national_value . '">#' . $data->field_numero_national_value . ' - ' . $data->field_nom_francais_value . '</h3>';
+$content = $content . '<div id="t' . $data->field_numero_national_value . '">';
+if($premier)
+{
+  $premier = $bulbi->fetch(PDO::FETCH_OBJ);
+  $content = $content . '      <div class="image">';
+  $content = $content . '      <a href="' . $_SERVER['PHP_SELF'] . '/?q=node/' . $premier->entity_id . '"><img class="tooltip" title="Accéder à la fiche de '. $premier->field_nom_francais_value . '" style="max-width:100%; display:block; margin:auto;" src="../../../ArtworkDreamWorld/' . $premier->field_numero_national_value . '.png"></a>';
+  $content = $content . '      </div>';
+  $content = $content . '      <div class="info">';
+  $content = $content . '        <div class="txtinfo">';
+  $content = $content . '          <div>';
+  $content = $content . '            <div class="lblnoms"><b>Nom : </b></div>';
+  $content = $content . '            <div class="noms">' . $premier->field_nom_francais_value . ' (fr)<br>';
+  $content = $content .                $premier->field_nom_anglais_value . ' (en)<br>';
+  $content = $content .                $premier->field_nom_japonais_value . ' (jp)</div>';
+  $content = $content . '          </div>';
+  $content = $content . '          <b>Type : </b>' . $premier->field_type1_value;
+    if($premier->field_type2_value)
+    {
+  $content = $content . '/' . $premier->field_type2_value;
+    }
+  $content = $content . '          <br><b>Taille : </b>' . $premier->field_taille_value . ' m<br>';
+  $content = $content . '          <b>Poids : </b>' . $premier->field_poids_value . ' kg<br>';
+  $content = $content . '          <b>Espece : </b>' . $premier->field_espece_value;
+  $content = $content . '        </div>';
+  $content = $content . '      </div>';
+  $premier = false;
+}
+$content = $content . '</div>';
+}
+
+$content = $content . '</div>';
+
+$content = $content . '<script>';
+$content = $content . '$(document).ready(function(){';
+$content = $content . '  $( ".accordion" ).on( "accordionbeforeactivate", function( event, ui ) {';
+$content = $content . '  var id = ui.newHeader.attr("id");';
+$content = $content . '  if(document.getElementById("t" + id).innerHTML == "")';
+$content = $content . '  {';
+$content = $content . '      $.ajax({type:"POST",';
+$content = $content . '               async: false,';
+$content = $content . '               url:"' . $_SERVER['PHP_SELF'] . '/?q=En_attente",';
+$content = $content . '               data: "num=" + id,';
+$content = $content . '               success:function(result){';
+$content = $content . '               var tnum = document.getElementById("t" + id);';
+$content = $content . '               tnum.innerHTML = result;';
+
+$content = $content . '$(document).ready(function() {';
+$content = $content . '   $(".tooltip").tooltipster();';
+$content = $content . '});';
+
+$content = $content . '       }});';
+$content = $content . '  }';
+$content = $content . '  });';
+$content = $content . '});';
+
+$content = $content . '$(document).ready(function() {';
+$content = $content . '   $(".tooltip").tooltipster();';
+$content = $content . '});';
+
+$content = $content . '</script>';
+
+
+  //$test = '<p style="background-color:red;" >'. $poke_list[8]->Nom_francais .'</p>';
+
+
+$content = $content . '<br><h3><a href="' . $_SERVER['PHP_SELF'] . '/?q=Todo">A faire</a></h1>';
+
+  return $content;
+ }
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+ function attenteDex_menu() {
+
+  $items = array();
+
+  $items['En_attente'] = array(
+    'title' => "Pokemon en attente",
+    'page callback' => 'get_list_pokemon_en_attente',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+ 

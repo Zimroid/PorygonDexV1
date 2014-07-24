@@ -1,0 +1,736 @@
+<?php
+
+function get_percentage()
+{
+  $ntt = db_query("SELECT Numero_National FROM Pokedex")->rowCount();
+  $ng1 = db_query("SELECT Numero_National FROM Pokedex WHERE Numero_National < 152")->rowCount();
+  $ng2 = db_query("SELECT Numero_National FROM Pokedex WHERE Numero_National < 252 AND Numero_National > 151")->rowCount();
+  $ng3 = db_query("SELECT Numero_National FROM Pokedex WHERE Numero_National < 387 AND Numero_National > 251")->rowCount();
+  $ng4 = db_query("SELECT Numero_National FROM Pokedex WHERE Numero_National < 494 AND Numero_National > 386")->rowCount();
+  $ng5 = db_query("SELECT Numero_National FROM Pokedex WHERE Numero_National < 650 AND Numero_National > 493")->rowCount();
+  $ng6 = db_query("SELECT Numero_National FROM Pokedex WHERE Numero_National > 649")->rowCount();
+
+  $nNormal = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Normal' OR Type2 = 'Normal'")->rowCount();
+  $nFeu = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Feu' OR Type2 = 'Feu'")->rowCount();
+  $nEau = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Eau' OR Type2 = 'Eau'")->rowCount();
+  $nPlante = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Plante' OR Type2 = 'Plante'")->rowCount();
+  $nElectrique = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Electrik' OR Type2 = 'Electrik'")->rowCount();
+  $nGlace = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Glace' OR Type2 = 'Glace'")->rowCount();
+  $nCombat = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Combat' OR Type2 = 'Combat'")->rowCount();
+  $nPoison = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Poison' OR Type2 = 'Poison'")->rowCount();
+  $nSol = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Sol' OR Type2 = 'Sol'")->rowCount();
+  $nVol = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Vol' OR Type2 = 'Vol'")->rowCount();
+  $nPsy = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Psy' OR Type2 = 'Psy'")->rowCount();
+  $nInsecte = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Insecte' OR Type2 = 'Insecte'")->rowCount();
+  $nRoche = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Roche' OR Type2 = 'Roche'")->rowCount();
+  $nSpectre = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Spectre' OR Type2 = 'Spectre'")->rowCount();
+  $nDragon = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Dragon' OR Type2 = 'Dragon'")->rowCount();
+  $nTenebres = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Tenebres' OR Type2 = 'Tenebres'")->rowCount();
+  $nAcier = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Acier' OR Type2 = 'Acier'")->rowCount();
+  $nFee = db_query("SELECT Numero_National FROM Pokedex WHERE Type1 = 'Fee' OR Type2 = 'Fee'")->rowCount();
+
+  $g1 = 151;
+  $g2 = 100;
+  $g3 = 135;
+  $g4 = 107;
+  $g5 = 156;
+  $g6 = 69;
+
+  $tt = $g1 + $g2 + $g3 + $g4 + $g5 + $g6;
+
+  $normal = 97;
+  $feu = 55;
+  $eau = 117;
+  $plante = 84;
+  $electrique = 42;
+  $glace = 33;
+  $combat = 44;
+  $poison = 59;
+  $sol = 60;
+  $vol = 90;
+  $psy = 73;
+  $insecte = 66;
+  $roche = 54;
+  $spectre = 34;
+  $dragon = 38;
+  $tenebres = 44;
+  $acier = 41;
+  $fee = 33;
+
+
+  $output = '<script src="jquery/js/jquery-1.9.1.js"></script>';
+  $output = $output . '<script src="sites/all/modules/custom/percentDex/jquery.mambo.js"></script>';
+  $output = $output . '<script src="tooltipster/jquery.tooltipster.js"></script>';
+  $output = $output . '<link rel="stylesheet" href="tooltipster/tooltipster.css" />';
+
+  $output = $output . '<h3><a href="' . $_SERVER['PHP_SELF'] . '/?q=statsUsers">Classement des contributeurs.</a></h3>';
+
+  $output = $output . '<div width="180" style="width:180px; margin:auto;">';
+  $output = $output . '<canvas id="tt" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '</div>';
+
+
+  $output = $output . '<h1>Par génération</h1>';
+  $output = $output . '<div width="540" style="width:540px; margin:auto; margin-top:50px; margin-bottom:50px;">';
+  $output = $output . '<canvas id="g1" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="g2" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="g3" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="g4" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="g5" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="g6" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '</div>';
+
+
+  $output = $output . '<h1>Par type</h1>';
+  $output = $output . '<div width="540" style="width:540px; margin:auto;">';
+  $output = $output . '<canvas id="Normal" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Feu" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Eau" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Plante" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Electrique" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Glace" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Combat" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Poison" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Sol" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Vol" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Psy" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Insecte" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Roche" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Spectre" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Dragon" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Ténèbres" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Acier" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '<canvas id="Fée" class="tooltip" width="180" height="180" style="width: 180px; height: 180px;"></canvas>';
+  $output = $output . '</div>';
+
+  $output = $output . '<script>';
+  $output = $output . '   $("#tt").mambo({';
+    $res = round(($ntt/$tt)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "tt",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/tt.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#ff6262",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#8bd5ee",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("tt").title = "Progression totale : ' . $res . '%,<br>' . $ntt . ' fait(s) sur ' . $tt . '<br>' . ($tt - $ntt) . ' restant(s)";';
+
+  $output = $output . '   $("#g1").mambo({';
+    $res = round(($ng1/$g1)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "G1",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/g1.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#211ce7",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#ca1d1d",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("g1").title = "Bleu/Rouge/Jaune<br>Génération 1 : ' . $res . '%,<br>' . $ng1 . ' fait(s) sur ' . $g1 . '<br>' . ($g1 - $ng1) . ' restant(s)";';
+
+  $output = $output . '   $("#g2").mambo({';
+    $res = round(($ng2/$g2)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "G2",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/g2.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#bbbbbb",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#e0b561",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("g2").title = "Or/Argent/Crystal<br>Génération 2 : ' . $res . '%,<br>' . $ng2 . ' fait(s) sur ' . $g2 . '<br>' . ($g2 - $ng2) . ' restant(s)";';
+
+  $output = $output . '   $("#g3").mambo({';
+    $res = round(($ng3/$g3)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "G3",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/g3.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#da1313",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#378dd6",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("g3").title = "Rubis/Saphir/Emeraude<br>Génération 3 : ' . $res . '%,<br>' . $ng3 . ' fait(s) sur ' . $g3 . '<br>' . ($g3 - $ng3) . ' restant(s)";';
+
+  $output = $output . '   $("#g4").mambo({';
+    $res = round(($ng4/$g4)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "G4",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/g4.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#acdfea",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#eaace2",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("g4").title = "Diamant/Perle/Platine<br>Génération 4 : ' . $res . '%,<br>' . $ng4 . ' fait(s) sur ' . $g4 . '<br>' . ($g4 - $ng4) . ' restant(s)";';
+
+  $output = $output . '   $("#g5").mambo({';
+    $res = round(($ng5/$g5)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "G5",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/g5.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#000000",';
+  $output = $output . '     circleColor: "#FFFFFF",';
+  $output = $output . '     circleBorder: "#000000",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#000000",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#000000",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("g5").title = "Blanc/Noir/Blanc2/Noir2<br>Génération 5 : ' . $res . '%,<br>' . $ng5 . ' fait(s) sur ' . $g5 . '<br>' . ($g5 - $ng5) . ' restant(s)";';
+
+  $output = $output . '   $("#g6").mambo({';
+    $res = round(($ng6/$g6)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "G6",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/g6.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#1831c3",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#961616",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("g6").title = "X/Y<br>Génération 6 : ' . $res . '%,<br>' . $ng6 . ' fait(s) sur ' . $g6 . '<br>' . ($g6 - $ng6) . ' restant(s)";';
+
+
+  $output = $output . '   $("#Normal").mambo({';
+    $res = round(($nNormal/$normal)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Nor",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Normal.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#f1e5b9",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#cbbf95",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Normal").title = "Pokémon Normal : ' . $res . '%,<br>' . $nNormal . ' fait(s) sur ' . $normal . '<br>' . ($normal - $nNormal) . ' restant(s)";';
+
+  $output = $output . '   $("#Feu").mambo({';
+    $res = round(($nFeu/$feu)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Feu",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Feu.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#f87a3c",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#c4531b",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Feu").title = "Pokémon Feu : ' . $res . '%,<br>' . $nFeu . ' fait(s) sur ' . $feu . '<br>' . ($feu - $nFeu) . ' restant(s)";';
+
+  $output = $output . '   $("#Eau").mambo({';
+    $res = round(($nEau/$eau)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Eau",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Eau.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#69a3f1",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#4151ae",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Eau").title = "Pokémon Eau : ' . $res . '%,<br>' . $nEau . ' fait(s) sur ' . $eau . '<br>' . ($eau - $nEau) . ' restant(s)";';
+
+  $output = $output . '   $("#Plante").mambo({';
+    $res = round(($nPlante/$plante)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Pla",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Plante.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#4bcb4b",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#298d29",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Plante").title = "Pokémon Plante : ' . $res . '%,<br>' . $nPlante . ' fait(s) sur ' . $plante . '<br>' . ($plante - $nPlante) . ' restant(s)";';
+
+  $output = $output . '   $("#Electrique").mambo({';
+    $res = round(($nElectrique/$electrique)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Ele",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Electrique.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#f0f237",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#b6b80b",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Electrique").title = "Pokémon Eléctrique : ' . $res . '%,<br>' . $nElectrique . ' fait(s) sur ' . $electrique . '<br>' . ($electrique - $nElectrique) . ' restant(s)";';
+
+  $output = $output . '   $("#Glace").mambo({';
+    $res = round(($nGlace/$glace)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Gla",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Glace.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#a4e5e9",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#61a3a7",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Glace").title = "Pokémon Glace : ' . $res . '%,<br>' . $nGlace . ' fait(s) sur ' . $glace . '<br>' . ($glace - $nGlace) . ' restant(s)";';
+
+  $output = $output . '   $("#Combat").mambo({';
+    $res = round(($nCombat/$combat)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Com",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Combat.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#d18f3a",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#956526",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Combat").title = "Pokémon Combat : ' . $res . '%,<br>' . $nCombat . ' fait(s) sur ' . $combat . '<br>' . ($combat - $nCombat) . ' restant(s)";';
+
+  $output = $output . '   $("#Poison").mambo({';
+    $res = round(($nPoison/$poison)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Poi",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Poison.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#bf87c3",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#7f4f82",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Poison").title = "Pokémon Poison : ' . $res . '%,<br>' . $nPoison . ' fait(s) sur ' . $poison . '<br>' . ($poison - $nPoison) . ' restant(s)";';
+
+  $output = $output . '   $("#Sol").mambo({';
+    $res = round(($nSol/$sol)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Sol",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Sol.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#d39a67",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#906945",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Sol").title = "Pokémon Sol : ' . $res . '%,<br>' . $nSol . ' fait(s) sur ' . $sol . '<br>' . ($sol - $nSol) . ' restant(s)";';
+
+  $output = $output . '   $("#Vol").mambo({';
+    $res = round(($nVol/$vol)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Vol",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Vol.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#5fe2f1",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#37a6b3",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Vol").title = "Pokémon Vol : ' . $res . '%,<br>' . $nVol . ' fait(s) sur ' . $vol . '<br>' . ($vol - $nVol) . ' restant(s)";';
+
+  $output = $output . '   $("#Psy").mambo({';
+    $res = round(($nPsy/$psy)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Psy",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Psy.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#be5bd3",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#843695",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Psy").title = "Pokémon Psy : ' . $res . '%,<br>' . $nPsy . ' fait(s) sur ' . $psy . '<br>' . ($psy - $nPsy) . ' restant(s)";';
+
+  $output = $output . '   $("#Insecte").mambo({';
+    $res = round(($nInsecte/$insecte)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Ins",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Insecte.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#8fe6a7",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#569668",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Insecte").title = "Pokémon Insecte : ' . $res . '%,<br>' . $nInsecte . ' fait(s) sur ' . $insecte . '<br>' . ($insecte - $nInsecte) . ' restant(s)";';
+
+  $output = $output . '   $("#Roche").mambo({';
+    $res = round(($nRoche/$roche)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Roc",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Roche.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#e5c994",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#948872",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Roche").title = "Pokémon Roche : ' . $res . '%,<br>' . $nRoche . ' fait(s) sur ' . $roche . '<br>' . ($roche - $nRoche) . ' restant(s)";';
+
+  $output = $output . '   $("#Spectre").mambo({';
+    $res = round(($nSpectre/$spectre)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Spe",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Spectre.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#a27aca",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#58337d",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Spectre").title = "Pokémon Spectre : ' . $res . '%,<br>' . $nSpectre . ' fait(s) sur ' . $spectre . '<br>' . ($spectre - $nSpectre) . ' restant(s)";';
+
+  $output = $output . '   $("#Dragon").mambo({';
+    $res = round(($nDragon/$dragon)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Dra",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Dragon.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#3030ef",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#1a1a6c",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Dragon").title = "Pokémon Dragon : ' . $res . '%,<br>' . $nDragon . ' fait(s) sur ' . $dragon . '<br>' . ($dragon - $nDragon) . ' restant(s)";';
+
+  $output = $output . '   $("#Ténèbres").mambo({';
+    $res = round(($nTenebres/$tenebres)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Tén",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Tenebres.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#2e2e33",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#1b1b1d",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Ténèbres").title = "Pokémon Ténèbres : ' . $res . '%,<br>' . $nTenebres . ' fait(s) sur ' . $tenebres . '<br>' . ($tenebres - $nTenebres) . ' restant(s)";';
+
+  $output = $output . '   $("#Acier").mambo({';
+    $res = round(($nAcier/$acier)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Aci",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Acier.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#bcbcc7",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#8c8c8c",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Acier").title = "Pokémon Acier : ' . $res . '%,<br>' . $nAcier . ' fait(s) sur ' . $acier . '<br>' . ($acier - $nAcier) . ' restant(s)";';
+
+  $output = $output . '   $("#Fée").mambo({';
+    $res = round(($nFee/$fee)*100);
+  $output = $output . '     percentage: ' . $res . ',';
+  //$output = $output . '     label: "Fée",';
+  $output = $output . '     image: "sites/all/modules/custom/percentDex/img/Fee.png",';
+  $output = $output . '     displayValue: true,';
+  //$output = $output . '     labelColor: "#FFFFFF",';
+  $output = $output . '     circleColor: "#eeb6f3",';
+  //$output = $output . '     circleBorder: "#282D66",';
+  //$output = $output . '     ringStyle: "full",';
+  //$output = $output . '     ringBackground: "#999EDD",';
+  if($res == 0)
+  {
+    $output = $output . '     ringColor: "#FFFFFF",';
+  }
+  else
+  {
+    $output = $output . '     ringColor: "#dd73e6",';
+  }
+  //$output = $output . '     drawShadow: true';
+  $output = $output . '   });';
+
+  $output = $output . 'document.getElementById("Fée").title = "Pokémon Fée : ' . $res . '%,<br>' . $nFee . ' fait(s) sur ' . $fee . '<br>' . ($fee - $nFee) . ' restant(s)";';
+
+
+  $output = $output . '$(document).ready(function() {';
+  $output = $output . '   $(".tooltip").tooltipster();';
+  $output = $output . '});';
+
+  $output = $output . '</script>';
+
+  return $output;
+}
+
+
+
+/**
+* Implementation of hook_menu().
+**/
+function percentDex_menu()
+{
+  $items = array();
+
+  $items['Avancement'] = array(
+    'title' => "Avancement",
+    'page callback' => 'get_percentage',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+ 

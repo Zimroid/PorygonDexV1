@@ -1,0 +1,2128 @@
+<?php
+
+function get_list_pokemonV5()
+{
+
+/*--------------------Retour Ajax d'une fiche pokedex--------------------*/
+if(isset($_POST['num']))
+{
+  $pokemon = db_query("SELECT Nom_francais, Numero_National, Nom_anglais, Nom_japonais, Type1, Type2, Taille, Poids, Espece FROM Pokedex WHERE Numero_National = :n", array(':n' => $_POST['num']))->fetch(PDO::FETCH_OBJ);
+  echo '      <div class="image">';
+  echo '      <a href="Detail?n=' . $pokemon->Numero_National . '"><img class="tooltip" title="Accéder à la fiche de '. $pokemon->Nom_francais . '" style="max-width:100%; display:block; margin:auto;" src="ArtworkDreamWorld/' . $pokemon->Numero_National . '.png"></a>';
+  echo '      </div>';
+  echo '      <div class="info">';
+  echo '        <div class="txtinfo">';
+  echo '          <div>';
+  echo '            <div class="lblnoms"><b>Nom : </b></div>';
+  echo '            <div class="noms">' . $pokemon->Nom_francais . ' (fr)<br>';
+  echo              $pokemon->Nom_anglais . ' (en)<br>';
+  echo              $pokemon->Nom_japonais . ' (jp)</div>';
+  echo '          </div>';
+  echo '          <b>Type : </b><img src="logosTypes/' . $pokemon->Type1 . '"/>';
+  if($pokemon->Type2)
+  {
+  echo '/<img src="logosTypes/' . $pokemon->Type2 . '"/>';
+  }
+  echo '          <br><b>Taille : </b>' . $pokemon->Taille . ' m<br>';
+  echo '          <b>Poids : </b>' . $pokemon->Poids . ' kg<br>';
+  echo '          <b>Espece : </b>' . $pokemon->Espece;
+  echo '        </div>';
+  echo '      </div>';
+  exit;
+}
+
+/*--------------------Retour Ajax de la liste--------------------*/
+if(isset($_POST['search']))
+{
+  echo getListPkmV5();
+  exit;
+}
+
+/*--------------------jQueryUI + CSS--------------------*/
+$content = '  <link rel="stylesheet" href="jquery/css/flick/jquery-ui-1.10.3.custom.css" /> ';
+$content = $content . '  <script src="jquery/js/jquery-1.9.1.js"></script> ';
+$content = $content . '  <script src="jquery/js/jquery-ui-1.10.3.custom.js"></script> ';
+$content = $content . '  <link rel="stylesheet" href="sites/all/modules/custom/pokedexV5/pokedexV5.css" /> ';
+$content = $content . '  <link rel="stylesheet" href="tooltipster/tooltipster.css" /> ';
+$content = $content . '  <script src="tooltipster/jquery.tooltipster.js"></script> ';
+$content = $content . '  <script> ';
+$content = $content . '  $(function() { ';
+$content = $content . '    $( "#accordion" ).accordion({ ';
+$content = $content . '      collapsible: true, ';
+$content = $content . '      heightStyle: "content" ';
+$content = $content . '    }); ';
+$content = $content . '  }); ';
+$content = $content . '  $(function() { $( ".check" ).button(); });';
+$content = $content . '  $(function() {';
+$content = $content . '      $( "#tabs" ).tabs();';
+$content = $content . '    });';
+
+$content = $content . ' partager = true;';
+$content = $content . '  </script> ';
+
+
+/*--------------------Tableau de bord de recherche--------------------*/
+$content = $content . '<div id="tabs">';
+$content = $content . '<ul id="listTabs">';
+$content = $content . '<li class="tooltip" title="Seuls les Pokémon des générations sélectionnées<br>apparaitront dans la recherche."><a href="#genbtn">Generations</a></li>';
+$content = $content . '<li class="tooltip" title="Seuls les Pokémon dont les statistiques sont contenues<br>entre les valeurs choisies apparaitront dans la recherche."><a href="#stats">Stats</a></li>';
+$content = $content . '<li class="tooltip" title="Seuls les Pokémon qui comportent les types<br>sélectionnés apparaitront dans la recherche."><a href="#typebtn">Type Requis</a></li>';
+$content = $content . '<li class="tooltip" title="Aucun Pokémon possédant l’un des types<br>sélectionnés n’apparaitra dans la recherche."><a href="#nottypebtn">Type Interdit</a></li>';
+$content = $content . '<li class="tooltip" title="Seuls les Pokémon possédant les caractéristiques<br>sélectionnées apparaitront dans la recherche."><a href="#plusbtn">Plus</a></li>';
+$content = $content . '<li class="tooltip" title="Les Pokémon seront classé dans l\'ordre choisi."><a href="#triebtn">Trie</a></li>';
+$content = $content . '</ul>';
+
+/*Checkboxes des générations*/
+$content = $content . '<div id="genbtn">';
+$content = $content . '<input type="checkbox" class="check gen" id="g1" name="g1" value=""' . (isset($_GET["g1"])?' checked="checked" ':'') . '/><label for="g1">G1</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g2" name="g2" value=""' . (isset($_GET["g2"])?' checked="checked" ':'') . '/><label for="g2">G2</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g3" name="g3" value=""' . (isset($_GET["g3"])?' checked="checked" ':'') . '/><label for="g3">G3</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g4" name="g4" value=""' . (isset($_GET["g4"])?' checked="checked" ':'') . '/><label for="g4">G4</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g5" name="g5" value=""' . (isset($_GET["g5"])?' checked="checked" ':'') . '/><label for="g5">G5</label>';
+$content = $content . '<input type="checkbox" class="check gen" id="g6" name="g6" value=""' . (isset($_GET["g6"])?' checked="checked" ':'') . '/><label for="g6">G6</label>';
+$content = $content . '</div>';
+/*L'affichage des valeurs précise des stats*/
+$content = $content . '<div id="stats">';
+$content = $content . '<div id="statsbox">';
+$content = $content . '<div class="inputStat"><b>Pv :</b>';
+if(isset($_GET["pvmin"]) AND isset($_GET["pvmax"]) AND is_numeric($_GET["pvmin"]) AND is_numeric($_GET["pvmax"]) AND $_GET["pvmin"] <= $_GET["pvmax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="pvmin" name="pvmin" value="' . $_GET["pvmin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="pvmax" name="pvmax" value="' . $_GET["pvmax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="pvmin" name="pvmin" value="1"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="pvmax" name="pvmax" value="255"/>';
+}
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Atk :</b>';
+if(isset($_GET["atkmin"]) AND isset($_GET["atkmax"]) AND is_numeric($_GET["atkmin"]) AND is_numeric($_GET["atkmax"]) AND $_GET["atkmin"] <= $_GET["atkmax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="atkmin" name="atkmin" value="' . $_GET["atkmin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="atkmax" name="atkmax" value="' . $_GET["atkmax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="atkmin" name="atkmin" value="2"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="atkmax" name="atkmax" value="165"/>';
+}
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Def :</b>';
+if(isset($_GET["defmin"]) AND isset($_GET["defmax"]) AND is_numeric($_GET["defmin"]) AND is_numeric($_GET["defmax"]) AND $_GET["defmin"] <= $_GET["defmax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="defmin" name="defmin" value="' . $_GET["defmin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="defmax" name="defmax" value="' . $_GET["defmax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="defmin" name="defmin" value="5"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="defmax" name="defmax" value="230"/>';
+}
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>AtkSpe :</b>';
+if(isset($_GET["atkspemin"]) AND isset($_GET["atkspemax"]) AND is_numeric($_GET["atkspemin"]) AND is_numeric($_GET["atkspemax"]) AND $_GET["atkspemin"] <= $_GET["atkspemax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="atkspemin" name="atkspemin" value="' . $_GET["atkspemin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="atkspemax" name="atkspemax" value="' . $_GET["atkspemax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="atkspemin" name="atkspemin" value="10"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="atkspemax" name="atkspemax" value="154"/>';
+}
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>DefSpe :</b>';
+if(isset($_GET["defspemin"]) AND isset($_GET["defspemax"]) AND is_numeric($_GET["defspemin"]) AND is_numeric($_GET["defspemax"]) AND $_GET["defspemin"] <= $_GET["defspemax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="defspemin" name="defspemin" value="' . $_GET["defspemin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="defspemax" name="defspemax" value="' . $_GET["defspemax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="defspemin" name="defspemin" value="20"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="defspemax" name="defspemax" value="230"/>';
+}
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Vit :</b>';
+if(isset($_GET["vitmin"]) AND isset($_GET["vitmax"]) AND is_numeric($_GET["vitmin"]) AND is_numeric($_GET["vitmax"]) AND $_GET["vitmin"] <= $_GET["vitmax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="vitmin" name="vitmin" value="' . $_GET["vitmin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="vitmax" name="vitmax" value="' . $_GET["vitmax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="vitmin" name="vitmin" value="5"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="vitmax" name="vitmax" value="160"/>';
+}
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Taille :</b>';
+if(isset($_GET["taillemin"]) AND isset($_GET["taillemax"]) AND is_numeric($_GET["taillemin"]) AND is_numeric($_GET["taillemax"]) AND $_GET["taillemin"] <= $_GET["taillemax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="taillemin" name="taillemin" value="' . $_GET["taillemin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="taillemax" name="taillemax" value="' . $_GET["taillemax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="taillemin" name="taillemin" value="0.1"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="taillemax" name="taillemax" value="14.5"/>';
+}
+$content = $content . '</div>';
+
+$content = $content . '<div class="inputStat"><b>Poids :</b>';
+if(isset($_GET["poidsmin"]) AND isset($_GET["poidsmax"]) AND is_numeric($_GET["poidsmin"]) AND is_numeric($_GET["poidsmax"]) AND $_GET["poidsmin"] <= $_GET["poidsmax"])
+{
+  $content = $content . '<input type="text" class="inputstats" id="poidsmin" name="poidsmin" value="' . $_GET["poidsmin"] . '"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="poidsmax" name="poidsmax" value="' . $_GET["poidsmax"] . '"/>';
+}
+else
+{
+  $content = $content . '<input type="text" class="inputstats" id="poidsmin" name="poidsmin" value="0.1"/>';
+  $content = $content . ' - ';
+  $content = $content . '<input type="text" class="inputstats" id="poidsmax" name="poidsmax" value="950"/>';
+}
+$content = $content . '</div>';
+$content = $content . '</div>';
+$content = $content . '<div id="initSearchStats">';
+$content = $content . '<input type="submit" id="initStats" class="check" value="Reinitialiser"/><br> ';
+$content = $content . '</div>';
+
+$content = $content . '</div>';
+
+
+/*Les checkboxes des types*/
+$content = $content . '<div id="typebtn">';
+$content = $content . '<div id="typebtnbox">';
+$content = $content . '<input type="checkbox" class="check" id="normal" name="normal" value=""' . (isset($_GET["normal"])?' checked="checked" ':'') . '/><label for="normal">Normal</label>';
+$content = $content . '<input type="checkbox" class="check" id="feu" name="feu" value=""' . (isset($_GET["feu"])?' checked="checked" ':'') . '/><label for="feu">Feu</label>';
+$content = $content . '<input type="checkbox" class="check" id="eau" name="eau" value=""' . (isset($_GET["eau"])?' checked="checked" ':'') . '/><label for="eau">Eau</label>';
+$content = $content . '<input type="checkbox" class="check" id="plante" name="plante" value=""' . (isset($_GET["plante"])?' checked="checked" ':'') . '/><label for="plante">Plante</label>';
+$content = $content . '<input type="checkbox" class="check" id="electrique" name="electrique" value=""' . (isset($_GET["electrique"])?' checked="checked" ':'') . '/><label for="electrique">Electrique</label>';
+$content = $content . '<input type="checkbox" class="check" id="glace" name="glace" value=""' . (isset($_GET["glace"])?' checked="checked" ':'') . '/><label for="glace">Glace</label>';
+$content = $content . '<input type="checkbox" class="check" id="combat" name="combat" value=""' . (isset($_GET["combat"])?' checked="checked" ':'') . '/><label for="combat">Combat</label>';
+$content = $content . '<input type="checkbox" class="check" id="poison" name="poison" value=""' . (isset($_GET["poison"])?' checked="checked" ':'') . '/><label for="poison">Poison</label>';
+$content = $content . '<input type="checkbox" class="check" id="sol" name="sol" value=""' . (isset($_GET["sol"])?' checked="checked" ':'') . '/><label for="sol">Sol</label>';
+$content = $content . '<input type="checkbox" class="check" id="vol" name="vol" value=""' . (isset($_GET["vol"])?' checked="checked" ':'') . '/><label for="vol">Vol</label>';
+$content = $content . '<input type="checkbox" class="check" id="psy" name="psy" value=""' . (isset($_GET["psy"])?' checked="checked" ':'') . '/><label for="psy">Psy</label>';
+$content = $content . '<input type="checkbox" class="check" id="insecte" name="insecte" value=""' . (isset($_GET["insecte"])?' checked="checked" ':'') . '/><label for="insecte">Insecte</label>';
+$content = $content . '<input type="checkbox" class="check" id="roche" name="roche" value=""' . (isset($_GET["roche"])?' checked="checked" ':'') . '/><label for="roche">Roche</label>';
+$content = $content . '<input type="checkbox" class="check" id="spectre" name="spectre" value=""' . (isset($_GET["spectre"])?' checked="checked" ':'') . '/><label for="spectre">Spectre</label>';
+$content = $content . '<input type="checkbox" class="check" id="dragon" name="dragon" value=""' . (isset($_GET["dragon"])?' checked="checked" ':'') . '/><label for="dragon">Dragon</label>';
+$content = $content . '<input type="checkbox" class="check" id="tenebres" name="tenebres" value=""' . (isset($_GET["tenebres"])?' checked="checked" ':'') . '/><label for="tenebres">Tenebres</label>';
+$content = $content . '<input type="checkbox" class="check" id="acier" name="acier" value=""' . (isset($_GET["acier"])?' checked="checked" ':'') . '/><label for="acier">Acier</label>';
+$content = $content . '<input type="checkbox" class="check" id="fee" name="fee" value=""' . (isset($_GET["fee"])?' checked="checked" ':'') . '/><label for="fee">Fee</label>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+
+/*Les checkboxes d'interdiction de types*/
+$content = $content . '<div id="nottypebtn">';
+$content = $content . '<div id="nottypebtnbox">';
+$content = $content . '<input type="checkbox" class="check" id="notnormal" name="notnormal" value=""' . (isset($_GET["notnormal"])?' checked="checked" ':'') . '/><label for="notnormal">Normal</label>';
+$content = $content . '<input type="checkbox" class="check" id="notfeu" name="notfeu" value=""' . (isset($_GET["notfeu"])?' checked="checked" ':'') . '/><label for="notfeu">Feu</label>';
+$content = $content . '<input type="checkbox" class="check" id="noteau" name="noteau" value=""' . (isset($_GET["noteau"])?' checked="checked" ':'') . '/><label for="noteau">Eau</label>';
+$content = $content . '<input type="checkbox" class="check" id="notplante" name="notplante" value=""' . (isset($_GET["notplante"])?' checked="checked" ':'') . '/><label for="notplante">Plante</label>';
+$content = $content . '<input type="checkbox" class="check" id="notelectrique" name="notelectrique" value=""' . (isset($_GET["notelectrique"])?' checked="checked" ':'') . '/><label for="notelectrique">Electrique</label>';
+$content = $content . '<input type="checkbox" class="check" id="notglace" name="notglace" value=""' . (isset($_GET["notglace"])?' checked="checked" ':'') . '/><label for="notglace">Glace</label>';
+$content = $content . '<input type="checkbox" class="check" id="notcombat" name="notcombat" value=""' . (isset($_GET["notcombat"])?' checked="checked" ':'') . '/><label for="notcombat">Combat</label>';
+$content = $content . '<input type="checkbox" class="check" id="notpoison" name="notpoison" value=""' . (isset($_GET["notpoison"])?' checked="checked" ':'') . '/><label for="notpoison">Poison</label>';
+$content = $content . '<input type="checkbox" class="check" id="notsol" name="notsol" value=""' . (isset($_GET["notsol"])?' checked="checked" ':'') . '/><label for="notsol">Sol</label>';
+$content = $content . '<input type="checkbox" class="check" id="notvol" name="notvol" value=""' . (isset($_GET["notvol"])?' checked="checked" ':'') . '/><label for="notvol">Vol</label>';
+$content = $content . '<input type="checkbox" class="check" id="notpsy" name="notpsy" value=""' . (isset($_GET["notpsy"])?' checked="checked" ':'') . '/><label for="notpsy">Psy</label>';
+$content = $content . '<input type="checkbox" class="check" id="notinsecte" name="notinsecte" value=""' . (isset($_GET["notinsecte"])?' checked="checked" ':'') . '/><label for="notinsecte">Insecte</label>';
+$content = $content . '<input type="checkbox" class="check" id="notroche" name="notroche" value=""' . (isset($_GET["notroche"])?' checked="checked" ':'') . '/><label for="notroche">Roche</label>';
+$content = $content . '<input type="checkbox" class="check" id="notspectre" name="notspectre" value=""' . (isset($_GET["notspectre"])?' checked="checked" ':'') . '/><label for="notspectre">Spectre</label>';
+$content = $content . '<input type="checkbox" class="check" id="notdragon" name="notdragon" value=""' . (isset($_GET["notdragon"])?' checked="checked" ':'') . '/><label for="notdragon">Dragon</label>';
+$content = $content . '<input type="checkbox" class="check" id="nottenebres" name="nottenebres" value=""' . (isset($_GET["nottenebres"])?' checked="checked" ':'') . '/><label for="nottenebres">Tenebres</label>';
+$content = $content . '<input type="checkbox" class="check" id="notacier" name="notacier" value=""' . (isset($_GET["notacier"])?' checked="checked" ':'') . '/><label for="notacier">Acier</label>';
+$content = $content . '<input type="checkbox" class="check" id="notfee" name="notfee" value=""' . (isset($_GET["notfee"])?' checked="checked" ':'') . '/><label for="notfee">Fee</label>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+/*Les truc en plus de la recherche*/
+$content = $content . '<div id="plusbtn">';
+$content = $content . '<div id="plusbtnbox">';
+$content = $content . '<input type="checkbox" class="check" id="double" name="double" value=""' . (isset($_GET["double"])?' checked="checked" ':'') . '/><label for="double">Double Type</label>';
+$content = $content . '<input type="checkbox" class="check" id="mono" name="mono" value=""' . (isset($_GET["mono"])?' checked="checked" ':'') . '/><label for="mono">Mono Type</label>';
+$content = $content . '<input type="checkbox" class="check" id="1Stade" name="1Stade" value=""' . (isset($_GET["1Stade"])?' checked="checked" ':'') . '/><label for="1Stade">1er Stade</label>';
+$content = $content . '<input type="checkbox" class="check" id="fStade" name="fStade" value=""' . (isset($_GET["fStade"])?' checked="checked" ':'') . '/><label for="fStade">Stade Final</label>';
+$content = $content . '<input type="checkbox" class="check" id="legend" name="legend" value=""' . (isset($_GET["legend"])?' checked="checked" ':'') . '/><label for="legend">Légendaire</label>';
+$content = $content . '<input type="checkbox" class="check" id="notlegend" name="notlegend" value=""' . (isset($_GET["notlegend"])?' checked="notlegend" ':'') . '/><label for="notlegend">Non Légendaire</label>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+/*Le trie*/
+$content = $content . '<div id="triebtn">';
+$content = $content . '<div id="triebtnbox">';
+$content = $content . '<label id="labelTrie" for="trie">Trie par : </label><select id="trie" name="trie">';
+$content = $content . '   <option value="tnn"' . (isset($_GET["tnn"])?' selected="selected" ':'') . '>Numéro National</option>';
+$content = $content . '   <option value="tnj"' . (isset($_GET["tnj"])?' selected="selected" ':'') . '>Noméro Johto</option>';
+$content = $content . '   <option value="tnh"' . (isset($_GET["tnh"])?' selected="selected" ':'') . '>Numéro Hoenn</option>';
+$content = $content . '   <option value="tns"' . (isset($_GET["tns"])?' selected="selected" ':'') . '>Numéro Sinnoh</option>';
+$content = $content . '   <option value="tnu"' . (isset($_GET["tnu"])?' selected="selected" ':'') . '>Numéro Unys</option>';
+$content = $content . '   <option value="tnu2"' . (isset($_GET["tnu2"])?' selected="selected" ':'') . '>Numéro Unys NB2</option>';
+$content = $content . '   <option value="tnk1"' . (isset($_GET["tnk1"])?' selected="selected" ':'') . '>Numéro Kalos Côtes</option>';
+$content = $content . '   <option value="tnk2"' . (isset($_GET["tnk2"])?' selected="selected" ':'') . '>Numéro Kalos Centre</option>';
+$content = $content . '   <option value="tnk3"' . (isset($_GET["tnk3"])?' selected="selected" ':'') . '>Numéro Kalos Monts</option>';
+$content = $content . '   <option value="tnomf"' . (isset($_GET["tnomf"])?' selected="selected" ':'') . '>Nom Français</option>';
+$content = $content . '   <option value="tnoma"' . (isset($_GET["tnoma"])?' selected="selected" ':'') . '>Nom Anglais</option>';
+$content = $content . '   <option value="tnomj"' . (isset($_GET["tnomj"])?' selected="selected" ':'') . '>Nom Japonais</option>';
+$content = $content . '   <option value="tpv"' . (isset($_GET["tpv"])?' selected="selected" ':'') . '>PV</option>';
+$content = $content . '   <option value="tatk"' . (isset($_GET["tatk"])?' selected="selected" ':'') . '>Attaque</option>';
+$content = $content . '   <option value="tdef"' . (isset($_GET["tdef"])?' selected="selected" ':'') . '>Défense</option>';
+$content = $content . '   <option value="tatkspe"' . (isset($_GET["tatkspe"])?' selected="selected" ':'') . '>Attaque Spéciale</option>';
+$content = $content . '   <option value="tdefspe"' . (isset($_GET["tdefspe"])?' selected="selected" ':'') . '>Défense Spéciale</option>';
+$content = $content . '   <option value="tvit"' . (isset($_GET["tvit"])?' selected="selected" ':'') . '>Vitesse</option>';
+$content = $content . '   <option value="ttaille"' . (isset($_GET["ttaille"])?' selected="selected" ':'') . '>Taille</option>';
+$content = $content . '   <option value="tpoids"' . (isset($_GET["tpoids"])?' selected="selected" ':'') . '>Poids</option>';
+$content = $content . '</select>';
+$content = $content . '<input type="checkbox" class="check" id="desc" name="desc" value=""' . (isset($_GET["desc"])?' checked="checked" ':'') . '/><label for="desc">Décroissant</label>';
+$content = $content . '</div>';
+$content = $content . '</div>';
+
+$content = $content . '<div id="partager">';
+$content = $content . '</div>';
+
+$content = $content . '</div>';
+$content = $content . '<div class="recherche">Rechercher</div>';
+
+/*----------Ajout de la liste des pokémon----------*/
+
+$content = $content . '<p id="match">Resultat : -</p>';
+
+$content = $content . '<div id="accordion"> ';
+$content = $content . getListPkmV5();
+$content = $content . '</div>';
+
+/*----------Compteur de résultat----------*/
+$content = $content . "<script>";
+$content = $content . '$(document).ready(function() {';
+$content = $content . "   var nb = document.getElementById('accordion').getElementsByTagName('h3').length;";
+$content = $content . "   document.getElementById('match').innerHTML = 'Resultat : ' + nb + ' Pokémon trouvé' + ((nb > 1)?'s':'');";
+$content = $content . '});';
+$content = $content . "</script>";
+
+
+/*----------Appliquer le jQueryUI----------*/
+$content = $content . '<script>';
+$content = $content . '$(document).ready(function(){';
+$content = $content . '  $( "#accordion" ).on( "accordionbeforeactivate", function( event, ui ) {';
+$content = $content . '  var id = ui.newHeader.attr("id");';
+$content = $content . '  if(document.getElementById("t" + id).innerHTML == "")';
+$content = $content . '  {';
+$content = $content . '      $.ajax({type:"POST",';
+$content = $content . '               async: false,';
+$content = $content . '               url:"DexV5",';
+$content = $content . '               data: "num=" + id,';
+$content = $content . '               success:function(result){';
+$content = $content . '               var tnum = document.getElementById("t" + id);';
+$content = $content . '               tnum.innerHTML = result;';
+
+$content = $content . '$(document).ready(function() {';
+$content = $content . '   $(".tooltip").tooltipster();';
+$content = $content . '});';
+
+$content = $content . '       }});';
+$content = $content . '  }';
+$content = $content . '  });';
+$content = $content . '});';
+
+$content = $content . '</script>';
+$content = $content . '<script> ';
+
+$content = $content . '$(".recherche").position({';
+$content = $content . '  of: $("#tabs"),';
+$content = $content . '  my: "left bottom",';
+$content = $content . '  at: "right bottom",';
+$content = $content . '  collision: "none"';
+$content = $content . '});';
+
+$content = $content . '$(".recherche").click(function() {';
+$content = $content . '  var urlget = "";';
+$content = $content . '  var plus = false;';
+$content = $content . '  if($("#g1").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "g1";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#g2").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "g2";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#g3").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "g3";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#g4").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "g4";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#g5").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "g5";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#g6").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "g6";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#pvmin").val()) && $.isNumeric($("#pvmax").val()) && parseFloat($("#pvmin").val(), 10) <= parseFloat($("#pvmax").val(), 10) && (parseFloat($("#pvmin").val(), 10) > 1 || parseFloat($("#pvmax").val(), 10) < 255))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "pvmin=" + $("#pvmin").val() + "&pvmax=" + $("#pvmax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#atkmin").val()) && $.isNumeric($("#atkmax").val()) && parseFloat($("#atkmin").val(), 10) <= parseFloat($("#atkmax").val(), 10) && (parseFloat($("#atkmin").val(), 10) > 2 || parseFloat($("#atkmax").val(), 10) < 165))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "atkmin=" + $("#atkmin").val() + "&atkmax=" + $("#atkmax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#defmin").val()) && $.isNumeric($("#defmax").val()) && parseFloat($("#defmin").val(), 10) <= parseFloat($("#defmax").val(), 10) && (parseFloat($("#defmin").val(), 10) > 5 || parseFloat($("#defmax").val(), 10) < 230))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "defmin=" + $("#defmin").val() + "&defmax=" + $("#defmax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#atkspemin").val()) && $.isNumeric($("#atkspemax").val()) && parseFloat($("#atkspemin").val(), 10) <= parseFloat($("#atkspemax").val(), 10) && (parseFloat($("#atkspemin").val(), 10) > 10 || parseFloat($("#atkspemax").val(), 10) < 154))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "atkspemin=" + $("#atkspemin").val() + "&atkspemax=" + $("#atkspemax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#defspemin").val()) && $.isNumeric($("#defspemax").val()) && parseFloat($("#defspemin").val(), 10) <= parseFloat($("#defspemax").val(), 10) && (parseFloat($("#defspemin").val(), 10) > 20 || parseFloat($("#defspemax").val(), 10) < 230))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "defspemin=" + $("#defspemin").val() + "&defspemax=" + $("#defspemax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#vitmin").val()) && $.isNumeric($("#vitmax").val()) && parseFloat($("#vitmin").val(), 10) <= parseFloat($("#vitmax").val(), 10) && (parseFloat($("#vitmin").val(), 10) > 5 || parseFloat($("#vitmax").val(), 10) < 160))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "vitmin=" + $("#vitmin").val() + "&vitmax=" + $("#vitmax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#taillemin").val()) && $.isNumeric($("#taillemax").val()) && parseFloat($("#taillemin").val(), 10) <= parseFloat($("#taillemax").val(), 10) && (parseFloat($("#taillemin").val(), 10) > 0.1 || parseFloat($("#taillemax").val(), 10) < 14.5))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "taillemin=" + $("#taillemin").val() + "&taillemax=" + $("#taillemax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($.isNumeric($("#poidsmin").val()) && $.isNumeric($("#poidsmax").val()) && parseFloat($("#poidsmin").val(), 10) <= parseFloat($("#poidsmax").val(), 10) && (parseFloat($("#poidsmin").val(), 10) > 0.1 || parseFloat($("#poidsmax").val(), 10) < 950))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "poidsmin=" + $("#poidsmin").val() + "&poidsmax=" + $("#poidsmax").val();';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#normal").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "normal";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#feu").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "feu";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#eau").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "eau";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#plante").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "plante";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#electrique").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "electrique";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#glace").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "glace";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#combat").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "combat";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#poison").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "poison";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#sol").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "sol";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#vol").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "vol";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#psy").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "psy";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#insecte").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "insecte";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#roche").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "roche";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#spectre").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "spectre";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#dragon").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "dragon";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#tenebres").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tenebres";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#acier").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "acier";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#fee").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "fee";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notnormal").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notnormal";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notfeu").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notfeu";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#noteau").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "noteau";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notplante").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notplante";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notelectrique").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notelectrique";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notglace").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notglace";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notcombat").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notcombat";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notpoison").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notpoison";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notsol").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notsol";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notvol").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notvol";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notpsy").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notpsy";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notinsecte").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notinsecte";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notroche").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notroche";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notspectre").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notspectre";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notdragon").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notdragon";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#nottenebres").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "nottenebres";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notacier").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notacier";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notfee").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notfee";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#double").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "double";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#mono").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "mono";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#1Stade").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "1Stade";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#fStade").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "fStade";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#legend").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "legend";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#notlegend").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "notlegend";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnj")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnj";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnh")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnh";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tns")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tns";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnu")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnu";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnu2")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnu2";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnk1")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnk1";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnk2")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnk2";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnk3")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnk3";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnomf")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnomf";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnoma")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnoma";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tnomj")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tnomj";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tpv")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tpv";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tatk")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tatk";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tdef")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tdef";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tatkspe")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tatkspe";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tdefspe")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tdefspe";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tvit")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tvit";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="ttaille")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "ttaille";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#trie option:selected").val()=="tpoids")';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "tpoids";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+$content = $content . '  if($("#desc").prop("checked"))';
+$content = $content . '  {';
+$content = $content . '    if(plus)';
+$content = $content . '    {';
+$content = $content . '       urlget = urlget + "&";';
+$content = $content . '    }';
+$content = $content . '    urlget = urlget + "desc";';
+$content = $content . '    plus = true;';
+$content = $content . '  }';
+
+$content = $content . 'if(partager)';
+$content = $content . '{';
+$content = $content . ' $("#listTabs").append("<li><a class=\"tooltip\" title=\"Copiez/collez l\'URL pour partager<br>facilement votre recherche.\" href=\"#partager\">Partager</a></li>");';
+$content = $content . '$(document).ready(function() {';
+$content = $content . '   $(".tooltip").tooltipster();';
+$content = $content . '});';
+$content = $content . ' partager = false;';
+$content = $content . '}';
+$content = $content . '$("#partager").html("<input type=\"text\" value=\"http://www.porygondex.com/DexV5?" + urlget + "\"/>");';
+$content = $content . '$("#tabs").tabs("refresh");';
+
+$content = $content . ' $.ajax({type:"POST",';
+$content = $content . '          url:"/DexV5?" + urlget,';
+$content = $content . '          data: "search=get",';
+$content = $content . '          success:function(result){';
+$content = $content . '          $("#accordion").html(result).accordion("destroy").accordion({collapsible: true, heightStyle: "content"});';
+
+
+$content = $content . '             var nb = document.getElementById("accordion").getElementsByTagName("h3").length;';
+$content = $content . '             document.getElementById("match").innerHTML = "Resultat : " + nb + " Pokémon trouvé" + ((nb > 1)?"s":"");';
+
+$content = $content . '$(document).ready(function() {';
+$content = $content . '   $(".tooltip").tooltipster();';
+$content = $content . '});';
+
+
+$content = $content . '  }});';
+$content = $content . '});';
+
+
+$content = $content . '$("#initStats").click(function() {';
+$content = $content . ' $("#pvmin").val(1);';
+$content = $content . ' $("#pvmax").val(255);';
+$content = $content . ' $("#atkmin").val(2);';
+$content = $content . ' $("#atkmax").val(165);';
+$content = $content . ' $("#defmin").val(5);';
+$content = $content . ' $("#defmax").val(230);';
+$content = $content . ' $("#atkspemin").val(10);';
+$content = $content . ' $("#atkspemax").val(154);';
+$content = $content . ' $("#defspemin").val(20);';
+$content = $content . ' $("#defspemax").val(230);';
+$content = $content . ' $("#vitmin").val(5);';
+$content = $content . ' $("#vitmax").val(160);';
+$content = $content . ' $("#taillemin").val(0.1);';
+$content = $content . ' $("#taillemax").val(14.5);';
+$content = $content . ' $("#poidsmin").val(0.1);';
+$content = $content . ' $("#poidsmax").val(950);';
+$content = $content . '});';
+
+$content = $content . '$(document).ready(function() {';
+$content = $content . '   $(".tooltip").tooltipster();';
+$content = $content . '});';
+
+$content = $content . '</script> ';
+
+
+
+return $content;
+}
+
+
+
+ /**
+ * Implementation of hook_menu().
+ **/
+function PokedexV5_menu()
+{
+
+  $items = array();
+
+  $items['DexV5'] = array(
+    'title' => "Pokedex",
+    'page callback' => 'get_list_pokemonV5',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+function getListPkmV5()
+{
+  $res = '';
+
+
+  /*----------Requète SQL modifier pour filtrer la liste avec les parametres GET------------*/
+
+  // On récupère la liste des pokemon
+  //Construction de la requète
+  $sql = "SELECT Numero_National, Nom_francais FROM Pokedex ";
+
+  //Les WHERE
+  $blockGenerations = "";
+  $blockStats = "";
+  $blockTypes = "";
+  $blockNotTypes = "";
+  $blockPlus = "";
+
+  $needBlockGenerations = false;
+  $needBlockStats = false;
+  $needBlockTypes = false;
+  $needBlockNotTypes = false;
+  $needBlockPlus = false;
+
+  /*----------BLOCK GENERATIONS----------*/
+  if(isset($_GET["g1"]))
+  {
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 1 AND 151)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_GET["g2"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 152 AND 251)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_GET["g3"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 252 AND 386)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_GET["g4"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 387 AND 493)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_GET["g5"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National BETWEEN 494 AND 649)";
+    $needBlockGenerations = true;
+  }
+
+  if(isset($_GET["g6"]))
+  {
+    if($needBlockGenerations)
+    {
+      $blockGenerations = $blockGenerations . " OR ";
+    }
+    $blockGenerations = $blockGenerations . "(Numero_National > 649)";
+    $needBlockGenerations = true;
+  }
+
+  /*----------BLOCK STATS----------*/
+
+  if(isset($_GET["pvmax"]) AND isset($_GET["pvmin"]))
+  {
+    if(is_numeric($_GET["pvmax"]) AND is_numeric($_GET["pvmin"]))
+    {
+      $blockStats = $blockStats . "(PV BETWEEN " . $_GET["pvmin"] . " AND " . $_GET["pvmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_GET["atkmax"]) AND isset($_GET["atkmin"]))
+  {
+    if(is_numeric($_GET["atkmax"]) AND is_numeric($_GET["atkmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Attaque BETWEEN " . $_GET["atkmin"] . " AND " . $_GET["atkmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_GET["defmax"]) AND isset($_GET["defmin"]))
+  {
+    if(is_numeric($_GET["defmax"]) AND is_numeric($_GET["defmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Defense BETWEEN " . $_GET["defmin"] . " AND " . $_GET["defmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_GET["atkspemax"]) AND isset($_GET["atkspemin"]))
+  {
+    if(is_numeric($_GET["atkspemax"]) AND is_numeric($_GET["atkspemin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Attaque_spe BETWEEN " . $_GET["atkspemin"] . " AND " . $_GET["atkspemax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_GET["defspemax"]) AND isset($_GET["defspemin"]))
+  {
+    if(is_numeric($_GET["defspemax"]) AND is_numeric($_GET["defspemin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Defense_spe BETWEEN " . $_GET["defspemin"] . " AND " . $_GET["defspemax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_GET["vitmax"]) AND isset($_GET["vitmin"]))
+  {
+    if(is_numeric($_GET["vitmax"]) AND is_numeric($_GET["vitmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Vitesse BETWEEN " . $_GET["vitmin"] . " AND " . $_GET["vitmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_GET["taillemax"]) AND isset($_GET["taillemin"]))
+  {
+    if(is_numeric($_GET["taillemax"]) AND is_numeric($_GET["taillemin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Taille BETWEEN " . $_GET["taillemin"] . " AND " . $_GET["taillemax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  if(isset($_GET["poidsmax"]) AND isset($_GET["poidsmin"]))
+  {
+    if(is_numeric($_GET["poidsmax"]) AND is_numeric($_GET["poidsmin"]))
+    {
+      if($needBlockStats)
+      {
+        $blockStats = $blockStats . " AND ";
+      }
+      $blockStats = $blockStats . "(Poids BETWEEN " . $_GET["poidsmin"] . " AND " . $_GET["poidsmax"] . ")";
+      $needBlockStats = true;
+    }
+  }
+
+  /*----------BLOCK TYPES----------*/
+
+  if(isset($_GET["normal"]))
+  {
+    $blockTypes = $blockTypes . "(Type1 = 'Normal' OR Type2 = 'Normal')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["feu"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Feu' OR Type2 = 'Feu')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["eau"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Eau' OR Type2 = 'Eau')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["plante"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Plante' OR Type2 = 'Plante')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["plante"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Plante' OR Type2 = 'Plante')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["electrique"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Electrik' OR Type2 = 'Electrik')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["glace"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Glace' OR Type2 = 'Glace')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["combat"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Combat' OR Type2 = 'Combat')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["poison"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Poison' OR Type2 = 'Poison')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["sol"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Sol' OR Type2 = 'Sol')";
+    $needBlockTypes = true;
+  }
+
+  if(isset($_GET["vol"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Vol' OR Type2 = 'Vol')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["poison"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Poison' OR Type2 = 'Poison')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["psy"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Psy' OR Type2 = 'Psy')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["insecte"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Insecte' OR Type2 = 'Insecte')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["roche"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Roche' OR Type2 = 'Roche')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["spectre"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Spectre' OR Type2 = 'Spectre')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["dragon"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Dragon' OR Type2 = 'Dragon')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["tenebres"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Tenebres' OR Type2 = 'Tenebres')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["acier"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Acier' OR Type2 = 'Acier')";
+    $needBlockTypes= true;
+  }
+
+  if(isset($_GET["fee"]))
+  {
+    if($needBlockTypes)
+    {
+      $blockTypes = $blockTypes . " OR ";
+    }
+    $blockTypes = $blockTypes . "(Type1 = 'Fee' OR Type2 = 'Fee')";
+    $needBlockTypes= true;
+  }
+
+  /*----------BLOCK NOT TYPES----------*/
+
+  if(isset($_GET["notnormal"]))
+  {
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Normal' AND (Type2 <> 'Normal' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notfeu"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Feu' AND (Type2 <> 'Feu' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["noteau"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Eau' AND (Type2 <> 'Eau' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notplante"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Plante' AND (Type2 <> 'Plante' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notplante"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Plante' AND (Type2 <> 'Plante' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notelectrique"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Electrik' AND (Type2 <> 'Electrik' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notglace"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Glace' AND (Type2 <> 'Glace' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notcombat"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Combat' AND (Type2 <> 'Combat' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notpoison"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Poison' AND (Type2 <> 'Poison' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notsol"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Sol' AND (Type2 <> 'Sol' OR Type2 IS NULL))";
+    $needBlockNotTypes = true;
+  }
+
+  if(isset($_GET["notvol"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Vol' AND (Type2 <> 'Vol' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notpoison"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Poison' AND (Type2 <> 'Poison' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notpsy"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Psy' AND (Type2 <> 'Psy' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notinsecte"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Insecte' AND (Type2 <> 'Insecte' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notroche"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Roche' AND (Type2 <> 'Roche' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notspectre"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Spectre' AND (Type2 <> 'Spectre' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notdragon"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Dragon' AND (Type2 <> 'Dragon' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["nottenebres"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Tenebres' AND (Type2 <> 'Tenebres' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notacier"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Acier' AND (Type2 <> 'Acier' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  if(isset($_GET["notfee"]))
+  {
+    if($needBlockNotTypes)
+    {
+      $blockNotTypes = $blockNotTypes . " AND ";
+    }
+    $blockNotTypes = $blockNotTypes . "(Type1 <> 'Fee' AND (Type2 <> 'Fee' OR Type2 IS NULL))";
+    $needBlockNotTypes= true;
+  }
+
+  /*----------BLOCK PLUS----------*/
+  if(isset($_GET["double"]))
+  {
+    $blockPlus = $blockPlus . "(Type2 IS NOT NULL)";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["mono"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Type2 IS NULL)";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["1Stade"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Pre_evo IS NULL)";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["fStade"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Numero_National NOT IN (SELECT Pre_evo FROM Pokedex WHERE Pre_evo IS NOT NULL))";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["legend"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Numero_National IN (144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 716, 717, 718))";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["notlegend"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "(Numero_National NOT IN (144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 716, 717, 718))";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tnj"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Johto IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tnh"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Hoenn IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tns"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Sinnoh IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tnu"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Unys IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tnu2"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Unys_NB2 IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tnk1"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Kalos_Cotes IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tnk2"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Kalos_Centre IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  if(isset($_GET["tnk3"]))
+  {
+    if($needBlockPlus)
+    {
+      $blockPlus = $blockPlus . " AND ";
+    }
+    $blockPlus = $blockPlus . "Numero_Kalos_Monts IS NOT NULL";
+    $needBlockPlus = true;
+  }
+
+  //Montage des blocks
+  if($needBlockGenerations OR $needBlockStats OR $needBlockTypes OR $needBlockNotTypes OR $needBlockPlus)
+  {
+    $sql = $sql . " WHERE ";
+    if($needBlockGenerations)
+    {
+      $sql = $sql . "(" . $blockGenerations . ")";
+    }
+    if($needBlockStats)
+    {
+      if($needBlockGenerations)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockStats . ")";
+    }
+    if($needBlockTypes)
+    {
+      if($needBlockGenerations OR $needBlockStats)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockTypes . ")";
+    }
+    if($needBlockNotTypes)
+    {
+      if($needBlockGenerations OR $needBlockStats OR $needBlockTypes)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockNotTypes . ")";
+    }
+    if($needBlockPlus)
+    {
+      if($needBlockGenerations OR $needBlockStats OR $needBlockTypes OR $needBlockNotTypes)
+      {
+        $sql = $sql . " AND ";
+      }
+      $sql = $sql . "(" . $blockPlus . ")";
+    }
+  }
+
+  /*----------BLOCK ORDER BY----------*/
+  $blockOrder = "ORDER BY ";
+  $needBlockOrder = false;
+  if(isset($_GET["tnj"]))
+  {
+    $blockOrder = $blockOrder . "Numero_Johto";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnh"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Numero_Hoenn";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tns"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Numero_Sinnoh";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnu"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Numero_Unys";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnu2"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Numero_Unys_NB2";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnk1"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Numero_Kalos_Cotes";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnk2"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Numero_Kalos_Centre";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnk3"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Numero_Kalos_Monts";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnomf"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Nom_francais";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnoma"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Nom_anglais";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tnomj"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Nom_japonais";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tpv"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "PV";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tatk"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Attaque";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tdef"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Defense";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tatkspe"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Attaque_spe";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tdefspe"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Defense_spe";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["tvit"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Vitesse";
+    $needBlockOrder = true;
+  }
+
+  if(isset($_GET["ttaille"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Taille";
+    $needBlockOrder = true;
+  }
+ 
+  if(isset($_GET["tpoids"]))
+  {
+    if($needBlockOrder)
+    {
+      $blockOrder = $blockOrder . " AND ";
+    }
+    $blockOrder = $blockOrder . "Poids";
+    $needBlockOrder = true;
+  }
+
+  $sql = $sql . $blockOrder . (($needBlockOrder)?"":"Numero_National");
+
+  if(isset($_GET["desc"]))
+  {
+    $sql = $sql . " DESC";
+  }
+
+
+  //Fin de la requète avec le ORDER BY
+  //$sql = $sql . "ORDER BY Numero_National";
+  // exécution de la requête
+  $result = db_query($sql);
+
+
+  /*--------------------Affichage de la liste des pokémon voulu--------------------*/
+  $nbRes = 0;
+  $premier = true;
+  while ($data = $result->fetch(PDO::FETCH_OBJ))
+  {
+    $res = $res . '<h3 id="' . $data->Numero_National . '">#' . $data->Numero_National . ' - ' . $data->Nom_francais . '</h3>';
+    $res = $res . '<div id="t' . $data->Numero_National . '">';
+    if($premier)
+    {
+      $premier = db_query("SELECT Nom_francais, Numero_National, Nom_anglais, Nom_japonais, Type1, Type2, Taille, Poids, Espece FROM Pokedex WHERE Numero_National = :n", array(':n' => $data->Numero_National))->fetch(PDO::FETCH_OBJ);
+
+      $res = $res . '      <div class="image">';
+      $res = $res . '      <a href="Detail?n=' . $premier->Numero_National . '"><img class="tooltip" title="Accéder à la fiche de '. $premier->Nom_francais . '" style="max-width:100%; display:block; margin:auto;" src="ArtworkDreamWorld/' . $premier->Numero_National . '.png"></a>';
+      $res = $res . '      </div>';
+      $res = $res . '      <div class="info">';
+      $res = $res . '        <div class="txtinfo">';
+      $res = $res . '          <div>';
+      $res = $res . '            <div class="lblnoms"><b>Nom : </b></div>';
+      $res = $res . '            <div class="noms">' . $premier->Nom_francais . ' (fr)<br>';
+      $res = $res .              $premier->Nom_anglais . ' (en)<br>';
+      $res = $res .              $premier->Nom_japonais . ' (jp)</div>';
+      $res = $res . '          </div>';
+      $res = $res . '          <b>Type : </b><img src="logosTypes/' . $premier->Type1 . '"/>';
+        if($premier->Type2)
+        {
+      $res = $res . '/<img src="logosTypes/' . $premier->Type2 . '"/>';
+        }
+      $res = $res . '          <br><b>Taille : </b>' . $premier->Taille . ' m<br>';
+      $res = $res . '          <b>Poids : </b>' . $premier->Poids . ' kg<br>';
+      $res = $res . '          <b>Espece : </b>' . $premier->Espece;
+      $res = $res . '        </div>';
+      $res = $res . '      </div>';
+
+      $premier = false;
+    }
+    $res = $res . '</div>';
+    $nbRes++;
+  }
+
+  return $res;
+}
+ 
